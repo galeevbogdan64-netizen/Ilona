@@ -265,8 +265,8 @@ function vitRows(v, mult = 1, fe = 10) {
 function macroLine(n) { return `<div class="macros"><div><b>${fmt(n.k)}</b><span>ккал</span></div><div><b>${n.p.toFixed(0)}</b><span>белки, г</span></div><div><b>${n.f.toFixed(0)}</b><span>жиры, г</span></div><div><b>${n.c.toFixed(0)}</b><span>углев., г</span></div></div>`; }
 
 function viewFood() {
-  const tabs = [['fridge', 'Холодильник'], ['recipes', 'Рецепты'], ['diary', 'Дневник'], ['profile', 'Профиль']];
-  const body = ({ fridge: foodFridge, recipes: foodRecipes, diary: foodDiary, profile: foodProfile })[foodTab]();
+  const tabs = [['fridge', 'Холодильник'], ['recipes', 'Рецепты'], ['world', 'Мировая кухня'], ['diary', 'Дневник'], ['profile', 'Профиль']];
+  const body = ({ fridge: foodFridge, recipes: foodRecipes, world: typeof foodWorld === 'function' ? foodWorld : () => '<div class="panel"><p>Мировая кухня ещё загружается — обнови приложение.</p></div>', diary: foodDiary, profile: foodProfile })[foodTab]();
   return `<div class="top"><div><div class="date">повар · диетолог</div><h1>Готовка</h1></div></div>
     <div class="seg">${tabs.map(([k, n]) => `<button class="${foodTab === k ? 'on' : ''}" data-act="ftab" data-v="${k}">${n}</button>`).join('')}</div>
     ${body}

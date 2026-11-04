@@ -14,6 +14,22 @@ const FONTS = {
   hand: { n: 'Рукописный', head: 'Caveat', body: 'Nunito', q: 'family=Caveat:wght@600;700&family=Nunito:wght@400;600;700' },
   tech: { n: 'Технический', head: 'Russo One', body: 'JetBrains Mono', q: 'family=Russo+One&family=JetBrains+Mono:wght@400;500;700' }
 };
+/* Свои шрифты: файл кладётся в папку fonts/ рядом с index.html (woff2, woff, ttf или otf) — и шрифт появляется в настройках.
+   Это декоративные шрифты, поэтому ими пишутся только заголовки, а обычный текст остаётся читаемым (Manrope). */
+const USER_FONTS = [
+  ['pilowlava', 'Pilowlava', 'Pilowlava'], ['nauryz', 'NauryzRedKeds', 'NauryzRedKeds'], ['joker', 'Joker', 'Joker'],
+  ['gorod', 'Gorod', 'Gorod'], ['handelson', 'Handelson One', 'HandelsonOne'], ['havana', 'Havana', 'Havana'],
+  ['drebeden', 'SS Drebeden', 'SS_Drebeden'], ['elowen', 'Elowen Caps', 'ElowenCaps'], ['buyan', 'Buyan', 'Buyan'], ['doppel', 'Doppelganger', 'Doppelganger']
+];
+USER_FONTS.forEach(([k, n, file]) => { FONTS[k] = { n, head: 'IL-' + file, body: 'Manrope', q: 'family=Manrope:wght@400;500;600;700', file, user: true }; });
+const fontOk = {};
+(function userFontFaces() {
+  const css = USER_FONTS.map(([, , f]) => `@font-face{font-family:'IL-${f}';font-display:swap;src:url('fonts/${f}.woff2') format('woff2'),url('fonts/${f}.woff') format('woff'),url('fonts/${f}.ttf') format('truetype'),url('fonts/${f}.otf') format('opentype')}`).join('');
+  const st = document.createElement('style'); st.id = 'user-fonts'; st.textContent = css; document.head.appendChild(st);
+})();
+async function checkUserFonts() {
+  await Promise.all(USER_FONTS.map(async ([k, , f]) => { try { fontOk[k] = (await document.fonts.load(`24px 'IL-${f}'`, 'Аа')).length > 0; } catch (e) { fontOk[k] = false; } }));
+}
 function applyFont() {
   const s = state.settings, auto = s.fontAuto ?? !s.font, key = (auto && bgFontHint) || s.font || 'modern', f = FONTS[key] || FONTS.modern;
   if (key !== 'modern' && !document.getElementById('font-' + key)) {
@@ -136,7 +152,7 @@ async function applyBackground() {
   img.onload = () => {
     layer.style.backgroundImage = `url("${url}")`;
     document.body.classList.add('hasbg');
-    document.documentElement.style.setProperty('--dim', String(s.bgDim ?? 0.55));
+    document.documentElement.style.setProperty('--dim', String(s.bgDim ?? 0.3)); document.documentElement.style.setProperty('--glass', String(Math.min(.92, .45 + (s.bgDim ?? 0.3) * .5)));
     if (s.bgAutoColors !== false) { try { applyPalette(paletteFrom(img)); } catch (e) { applyTheme(); } } else applyTheme();
     applyFont(); drawCredit();
   };
@@ -168,24 +184,29 @@ function stylePanels() {
     ${mode === 'art' ? `<p>Каждый день — новая картина великого художника. Все картины в общественном достоянии, берутся из Wikimedia Commons; снизу экрана подписаны автор и название.</p>
       <div class="chips">${Object.entries(PAINTERS).map(([id, p]) => `<button class="chip ${sel.has(id) ? 'on' : ''}" data-act="painter" data-v="${id}">${p.n}</button>`).join('')}</div>
       <div class="btnrow"><button class="btn small" data-act="bgnext">Следующая картина →</button>${bgInfo ? `<a class="btn small light" href="${esc(bgInfo.page)}" target="_blank" rel="noopener noreferrer">О картине ↗</a>` : ''}</div>` : ''}
-    ${mode !== 'none' ? `<label class="f">Затемнение фона</label><input type="range" min="0.2" max="0.85" step="0.05" value="${s.bgDim ?? 0.55}" data-act="bgdim" class="range">
+    ${mode !== 'none' ? `<label class="f">Затемнение фона</label><input type="range" min="0" max="0.9" step="0.05" value="${s.bgDim ?? 0.3}" data-act="bgdim" class="range"><div class="rlab"><span>картина ярче</span><span>текст читабельнее</span></div>
       <label class="switch"><input type="checkbox" data-act="bgauto" ${s.bgAutoColors !== false ? 'checked' : ''}><span></span>Подстраивать цвета интерфейса под картинку</label>
       ${mode === 'art' ? `<label class="switch"><input type="checkbox" data-act="fontauto" ${(s.fontAuto ?? !s.font) ? 'checked' : ''}><span></span>Подбирать шрифт под стиль художника</label>` : ''}` : ''}
   </div>
   <div class="panel"><h2>Шрифт</h2>
-    <div class="fonts">${Object.entries(FONTS).map(([k, f]) => `<button class="fontopt ${(s.font || 'modern') === k ? 'on' : ''}" data-act="font" data-v="${k}"><b style="font-family:'${f.head}',system-ui">Аа Привет</b><span>${f.n}</span></button>`).join('')}</div>
+    <div class="fonts">${Object.entries(FONTS).filter(([, f]) => !f.user).map(([k, f]) => `<button class="fontopt ${(s.font || 'modern') === k ? 'on' : ''}" data-act="font" data-v="${k}"><b style="font-family:'${f.head}',system-ui">Аа Привет</b><span>${f.n}</span></button>`).join('')}</div>
+    <h4 class="sh">Декоративные — для заголовков</h4>
+    <div class="fonts">${USER_FONTS.map(([k, n, file]) => `<button class="fontopt ${s.font === k ? 'on' : ''} ${fontOk[k] === false ? 'nofile' : ''}" data-act="font" data-v="${k}"><b style="font-family:'IL-${file}',system-ui">Шрифт</b><span>${n}${fontOk[k] === false ? '<small>нет файла</small>' : ''}</span></button>`).join('')}</div>
+    <details class="nyaml"><summary>Как добавить эти шрифты</summary><p class="hint">Скачай файл шрифта (.ttf, .otf или .woff2), переименуй ровно так, как указано, и загрузи в репозиторий <b>Ilona</b> на GitHub в папку <b>fonts</b> (Add file → Upload files, в начале имени файла допиши <b>fonts/</b>). Через 1–2 минуты шрифт заработает.</p>
+      <p class="hint">${USER_FONTS.map(([, n, f]) => `${n} → <b>fonts/${f}.ttf</b>`).join('<br>')}</p>
+      <p class="hint">Pilowlava и NauryzRedKeds бесплатные. Handelson One платный (≈ $29 у автора, Melvastype). У остальных проверь условия на странице скачивания — бери файлы только с сайта автора или с разрешением на использование.</p></details>
     <label class="f">Размер текста</label>
     <div class="chips">${[['normal', 'Обычный'], ['large', 'Крупный']].map(([k, n]) => `<button class="chip ${(s.fontSize || 'normal') === k ? 'on' : ''}" data-act="fontsize" data-v="${k}">${n}</button>`).join('')}</div>
   </div>`;
 }
-function preloadFontSamples() { Object.entries(FONTS).forEach(([k, f]) => { if (k !== 'modern' && !document.getElementById('font-' + k)) { const l = document.createElement('link'); l.id = 'font-' + k; l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?${f.q}&display=swap`; document.head.appendChild(l); } }); }
+function preloadFontSamples() { if (!preloadFontSamples.done) { preloadFontSamples.done = 1; checkUserFonts().then(() => { if (tab === 'settings') render(); }); } Object.entries(FONTS).forEach(([k, f]) => { if (k !== 'modern' && !document.getElementById('font-' + k)) { const l = document.createElement('link'); l.id = 'font-' + k; l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?${f.q}&display=swap`; document.head.appendChild(l); } }); }
 function styleClick(act, el) {
   const s = state.settings;
   switch (act) {
     case 'bgmode': s.bgMode = el.dataset.v; save(); applyBackground().then(render); render(); return true;
     case 'painter': { const set = new Set(s.painters && s.painters.length ? s.painters : Object.keys(PAINTERS)); set.has(el.dataset.v) ? set.delete(el.dataset.v) : set.add(el.dataset.v); if (!set.size) return toast('Оставь хотя бы одного художника'), true; s.painters = [...set]; s.bgShift = 0; save(); applyBackground().then(render); render(); return true; }
     case 'bgnext': s.bgShift = (s.bgShift || 0) + 1; save(); applyBackground().then(render); return true;
-    case 'font': s.font = el.dataset.v; s.fontAuto = false; save(); applyFont(); render(); return true;
+    case 'font': if (fontOk[el.dataset.v] === false) { toast('Файла этого шрифта нет в папке fonts — см. «Как добавить»'); return true; } s.font = el.dataset.v; s.fontAuto = false; save(); applyFont(); render(); return true;
     case 'fontsize': s.fontSize = el.dataset.v; save(); applyFont(); render(); return true;
   }
   return false;
@@ -196,4 +217,4 @@ document.addEventListener('change', e => {
   if (el.dataset.act === 'bgauto') { s.bgAutoColors = el.checked; save(); applyBackground(); }
   if (el.dataset.act === 'fontauto') { s.fontAuto = el.checked; save(); applyFont(); }
 });
-document.addEventListener('input', e => { if (e.target.dataset.act === 'bgdim') { state.settings.bgDim = +e.target.value; document.documentElement.style.setProperty('--dim', e.target.value); save(); } });
+document.addEventListener('input', e => { if (e.target.dataset.act === 'bgdim') { const v = +e.target.value; state.settings.bgDim = v; document.documentElement.style.setProperty('--dim', String(v)); document.documentElement.style.setProperty('--glass', String(Math.min(.92, .45 + v * .5))); save(); } });
