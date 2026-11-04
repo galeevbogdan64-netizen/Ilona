@@ -110,10 +110,9 @@ function puzzlesFor(d) {
 function lessonBlock(L, isToday) {
   const ans = state.brain.quiz[L.id], read = !!state.brain.read[L.id], none = L.id === '_none';
   const tagCls = L.cat === 'История' ? 'split' : L.cat === 'Наука' ? 'count' : L.cat === 'Финансы' ? 'money' : 'custom';
-  return `<article class="lesson">${lessonArt(L.m)}<div class="lesson-b">
+  return `<article class="lesson">${none ? lessonArt(L.m) : photoHero(L, lessonArt(L.m))}<div class="lesson-b">
     <div class="lhead"><span class="tag ${tagCls}">${esc(L.cat)}</span><span class="hint">${L.src === 'ai' ? 'от ИИ · ' : ''}≈ 2 минуты</span></div>
     <h2 class="ltitle">${esc(L.t)}</h2>
-    ${PHOTOS[L.m] && !none && !L.src ? `<figure class="lphoto">${photoBox(L.m, '')}</figure>` : ''}
     ${L.p.map(x => `<p>${esc(x)}</p>`).join('')}
     ${L.key ? `<div class="tipbox"><b>Главное</b>${esc(L.key)}</div>` : ''}
     ${L.o && L.o.length ? `<div class="quiz"><h4 class="sh">Проверь себя</h4><p class="qq">${esc(L.q)}</p>
@@ -136,7 +135,8 @@ function viewBrain() {
   const wiki = state.brain.wiki?.[d] || [];
   const puz = puzzlesFor(d), ps = state.brain.puz[d] || {};
   const left = unreadCount();
-  return head + lessonBlock(L, L.id === Lday.id) + `
+  ensureW();
+  return head + lessonBlock(L, L.id === Lday.id) + wDaySection() + `
   <div class="grid2">
   <div class="panel"><h2>Разминка для мозга</h2><p>Три новых задания каждый день — генерируются заново и не повторяются.</p>
     ${puz.map((z, i) => { const s = ps[i] || {}; return `<div class="puz ${s.ok ? 'ok' : s.shown ? 'shown' : ''}"><div class="puz-h"><span>${z.ic}</span><b>${z.t}</b>${s.ok ? '<em class="pos">✓ решено</em>' : ''}</div><p>${esc(z.q)}</p>

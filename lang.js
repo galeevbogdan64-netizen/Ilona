@@ -44,8 +44,8 @@ function newWordsToday() {
   const { perDay, learnedToday } = langDaily(), need = Math.max(0, perDay - learnedToday);
   return wordsArr().filter(w => !w.learned).slice(0, need);
 }
-function startLang(code, target) {
-  const t = today(), end = addDays(t, 29), words = {};
+function startLang(code, target, days = 30) {
+  const t = today(), end = addDays(t, Math.max(1, days) - 1), words = {};
   CORE[code].forEach((w, i) => { words[code + i] = { id: code + i, w, tr: RU_CORE[i], lvl: 0, due: t, learned: null }; });
   const gid = 'g' + Date.now().toString(36);
   state.goals.push({ id: gid, type: 'count', title: `Выучить ${target} слов (${LANGS[code].n.toLowerCase()})`, target, unit: 'слов', start: t, end, steps: [], log: {}, langGoal: true });
@@ -71,30 +71,16 @@ function viewLang() {
   ensureLang(); const l = L$();
   if (!l || langMode === 'setup') return `<div class="panel"><h2>ИИ-репетитор</h2><p>Выбери язык и цель — я разобью её на ежедневные задания: новые слова, повторение, грамматика и мини-тест. Прогресс попадёт в «Цели».</p>
     <label class="f">Язык</label><div class="langs">${Object.entries(LANGS).map(([k, x]) => `<button class="langopt ${l?.lang === k ? 'on' : ''}" data-act="lpick" data-v="${k}"><span>${x.f}</span>${x.n}</button>`).join('')}</div>
-    <label class="f">Сколько слов за месяц</label><div class="chips">${[100, 300, 500, 1000].map(n => `<button class="chip ${langPickN === n ? 'on' : ''}" data-act="lnum" data-v="${n}">${n}</button>`).join('')}</div>
+    <label class="f">Сколько слов выучить</label><div class="chips">${[50, 100, 300, 500, 1000].map(n => `<button class="chip ${langPickN === n ? 'on' : ''}" data-act="lnum" data-v="${n}">${n}</button>`).join('')}</div>
+    <input class="inp" id="lnum-own" type="number" min="5" max="10000" inputmode="numeric" placeholder="или своё число слов" value="${[50, 100, 300, 500, 1000].includes(langPickN) ? '' : langPickN}" style="margin-top:8px">
+    <label class="f">За какой срок</label><div class="chips">${[[7, 'неделя'], [14, '2 недели'], [30, 'месяц'], [90, '3 месяца'], [180, 'полгода']].map(([n, t]) => `<button class="chip ${langPickD === n ? 'on' : ''}" data-act="ldays" data-v="${n}">${t}</button>`).join('')}</div>
+    <input class="inp" id="ldays-own" type="number" min="1" max="730" inputmode="numeric" placeholder="или своё число дней" value="${[7, 14, 30, 90, 180].includes(langPickD) ? '' : langPickD}" style="margin-top:8px">
+    <p class="hint">≈ ${Math.ceil(langPickN / langPickD)} новых слов в день${langPickN / langPickD > 40 ? ' — это очень много, лучше взять срок подольше' : ''}.</p>
     <div class="btnrow"><button class="btn hot" data-act="lstart">Начать</button>${l ? '<button class="btn light" data-act="lcancel">Отмена</button>' : ''}</div>
     ${l ? '<p class="hint">При смене языка текущий прогресс по словам будет заменён.</p>' : ''}</div>`;
-  const L = LANGS[l.lang], st = langDaily(), news = newWordsToday(), due = st.due.slice(0, 20), d = today();
-  const inQueue = wordsArr().filter(w => !w.learned).length;
-  const g = GRAMMAR[l.lang][(diff(l.start, d) % GRAMMAR[l.lang].length + GRAMMAR[l.lang].length) % GRAMMAR[l.lang].length], gdone = l.grammar[d];
-  const learned = wordsArr().filter(w => w.learned), quizWords = learned.slice().sort((a, b) => (a.id < b.id ? -1 : 1)).filter((_, i) => i % 3 === diff(l.start, d) % 3).slice(0, 5);
-  return `<div class="panel lhero"><div class="gbody">${flask(learnedCount() / l.target, { color: 'var(--blue)', round: true })}
-    <div class="ginfo"><h2>${L.f} ${L.n}</h2><div class="stats" style="margin-top:6px">${learnedCount()} из ${l.target} слов · осталось ${st.left} дн.</div>
-    <p style="margin:4px 0 0">Сегодня: <b>${st.perDay}</b> новых слов${due.length ? `, повторить <b>${st.due.length}</b>` : ''}</p></div></div>
-    <div class="btnrow"><button class="btn small light" data-act="lsetup">Сменить язык или цель</button></div></div>
-  <div class="panel"><h2>Новые слова сегодня · ${st.learnedToday}/${st.perDay}</h2>
-    ${news.length ? news.slice(0, 5).map(w => wordCard(w, 'new')).join('') + (news.length > 5 ? `<p class="hint" style="margin-top:10px">Ещё ${news.length - 5} — появятся, когда запомнишь эти.</p>` : '') : st.learnedToday >= st.perDay ? '<p class="ok-t">✓ План по новым словам на сегодня выполнен</p>' : `<p>Слова в запасе закончились — попроси репетитора-ИИ дать новые (кнопка ниже). В запасе: ${inQueue}.</p>`}
-  </div>
-  ${due.length ? `<div class="panel"><h2>Повторение · ${st.due.length}</h2><p>Слова, которые пора повторить, чтобы они ушли в долгую память.</p>${due.map(w => wordCard(w, 'due')).join('')}</div>` : ''}
-  <div class="panel"><h2>Грамматика дня</h2><h4 class="sh" style="margin-top:4px">${esc(g[0])}</h4><p style="color:var(--text)">${esc(g[1])}</p>
-    <div class="tipbox"><b>Пример</b>${esc(g[2][0])} — ${esc(g[2][1])}</div>
-    ${gdone ? `<p class="ok-t">✓ ${esc(g[3])} → ${esc(g[4])}</p>` : `<p class="qq">${esc(g[3])}</p><form class="gram-f txform"><input class="inp" placeholder="ответ" autocomplete="off"><button class="btn small hot" type="submit">Проверить</button></form><button class="chip" style="margin-top:8px" data-act="gshow">Показать ответ</button>`}
-  </div>
-  ${quizWords.length >= 3 ? `<div class="panel"><h2>Мини-тест</h2>${quizWords.map(w => { const opts = [w, ...learned.filter(x => x !== w).sort((a, b) => ((a.id + d) > (b.id + d) ? 1 : -1)).slice(0, 2)].sort((a, b) => (a.tr > b.tr ? 1 : -1)); const ans = l.quiz[d + w.id]; return `<div class="mq"><b>${esc(w.w)}</b><div class="chips">${opts.map(o => `<button class="chip ${ans ? (o.id === w.id ? 'on' : ans === o.id ? 'bad' : '') : ''}" data-act="lq" data-id="${w.id}" data-v="${o.id}" ${ans ? 'disabled' : ''}>${esc(o.tr)}</button>`).join('')}</div></div>`; }).join('')}</div>` : ''}
-  ${aiPanel('lang', 'Репетитор ИИ', langPrompt(), 'Получи новые слова на неделю, проверку предложений и объяснение грамматики.')}
-  <div class="btnrow" style="margin:-6px 0 16px"><button class="btn light" data-act="lwpaste">Вставить слова от ИИ</button><button class="btn light" data-act="lwadd">+ Своё слово</button></div>`;
+  return tutorView(l);
 }
-let langPickN = 500, langPick = 'en';
+let langPickN = 500, langPickD = 30, langPick = 'en';
 function langPrompt() {
   const l = L$(), L = LANGS[l.lang], known = wordsArr().map(w => w.w).slice(-150);
   const g = GRAMMAR[l.lang][(diff(l.start, today()) % GRAMMAR[l.lang].length + GRAMMAR[l.lang].length) % GRAMMAR[l.lang].length][0];
@@ -113,9 +99,10 @@ function langClick(act, el) {
   switch (act) {
     case 'lpick': langPick = el.dataset.v; document.querySelectorAll('.langopt').forEach(b => b.classList.toggle('on', b.dataset.v === langPick)); return true;
     case 'lnum': langPickN = +el.dataset.v; render(); return true;
+    case 'ldays': langPickD = +el.dataset.v; render(); return true;
     case 'lsetup': langMode = 'setup'; langPick = l?.lang || 'en'; render(); return true;
     case 'lcancel': langMode = null; render(); return true;
-    case 'lstart': if (l) { const g = state.goals.find(x => x.id === l.goalId); if (g) state.goals = state.goals.filter(x => x !== g); } startLang(langPick, langPickN); langMode = null; toast('План создан — он появился и в «Целях»'); render(); return true;
+    case 'lstart': if (l) { const g = state.goals.find(x => x.id === l.goalId); if (g) state.goals = state.goals.filter(x => x !== g); } startLang(langPick, langPickN, langPickD); langMode = null; toast('План создан — он появился и в «Целях»'); render(); return true;
     case 'lsay': speak(w.w); return true;
     case 'lreveal': reveal[el.dataset.id] = true; render(); return true;
     case 'llearn': w.learned = d; w.lvl = 1; w.due = addDays(d, SRS[0]); syncLangGoal(); save(); render(); return true;
@@ -134,4 +121,9 @@ document.addEventListener('submit', e => {
   const l = L$(), d = today(), g = GRAMMAR[l.lang][(diff(l.start, d) % GRAMMAR[l.lang].length + GRAMMAR[l.lang].length) % GRAMMAR[l.lang].length];
   const ok = norm(f.querySelector('input').value) === norm(g[4]);
   if (ok) { l.grammar[d] = true; save(); toast('Верно! 🎉'); render(); } else toast('Пока не то — попробуй ещё или посмотри ответ');
+});
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'lnum-own' && +e.target.value >= 5) { langPickN = Math.min(10000, Math.round(+e.target.value)); render(); }
+  if (e.target.id === 'ldays-own' && +e.target.value >= 1) { langPickD = Math.min(730, Math.round(+e.target.value)); render(); }
 });

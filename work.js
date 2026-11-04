@@ -88,7 +88,7 @@ function viewWork() {
   </div>
   <div class="grid2">
     <div class="panel"><h2>Этот месяц</h2><div class="kpis"><div class="big pos"><span>Заработано</span><b>${fmt(earned)} ₽</b></div><div><span>Откликов</span><b>${sent}</b></div><div><span>Взяли</span><b>${sent ? Math.round(won / sent * 100) : 0}%</b></div></div>
-      <div class="flasks" style="grid-template-columns:repeat(2,1fr)">${flask(Math.min(1, earned / Math.max(1, w.profile.goal || 100000)), { label: 'План месяца', sub: `${fmt(earned)} из ${fmt(w.profile.goal || 100000)} ₽` })}${flask(sent ? won / sent : 0, { round: true, color: 'var(--blue)', label: 'Конверсия', sub: `${won} из ${sent}` })}</div></div>
+      <div class="flasks" style="grid-template-columns:repeat(2,1fr)">${flask(Math.min(1, earned / Math.max(1, w.profile.goal || 100000)), { kind: 'chest', label: 'План месяца', sub: `${fmt(earned)} из ${fmt(w.profile.goal || 100000)} ₽` })}${flask(sent ? won / sent : 0, { color: 'var(--blue)', label: 'Конверсия', sub: `${won} из ${sent}` })}</div></div>
     <div class="panel"><h2>Мой профиль для бота</h2><p>По нему бот будет выбирать заказы и считать цену.</p>
       <form id="wprof"><label class="f">Что умею</label><textarea class="inp" id="wp-skills" style="min-height:70px">${esc(w.profile.skills)}</textarea>
       <div class="two"><div><label class="f">Ставка, ₽/час</label><input class="inp" id="wp-rate" type="number" min="100" value="${w.profile.rate}"></div><div><label class="f">Мин. заказ, ₽</label><input class="inp" id="wp-min" type="number" min="0" value="${w.profile.min}"></div></div>

@@ -123,7 +123,7 @@ const CAT_COLORS = ['var(--accent)', '#FF8A3D', '#F472B6', '#60A5FA', '#4ADE80',
 function moneyGoalsPanel() {
   const gs = (state.goals || []).filter(g => g.type === 'money');
   if (!gs.length) return '';
-  return `<div class="panel"><h2>Копилки целей</h2><p>Наполняются тем, что ты откладываешь на «Сегодня».</p><div class="flasks">${gs.map(g => flask(sumAll(g) / g.target, { label: esc(g.title), sub: `${fmt(sumAll(g))} из ${fmt(g.target)} ₽` })).join('')}</div></div>`;
+  return `<div class="panel"><h2>Копилки целей</h2><p>Наполняются тем, что ты откладываешь на «Сегодня».</p><div class="flasks">${gs.map(g => flask(sumAll(g) / g.target, { kind: 'chest', label: esc(g.title), sub: `${fmt(sumAll(g))} из ${fmt(g.target)} ₽` })).join('')}</div></div>`;
 }
 function viewMoney() {
   const [from, to] = periodRange(moneyPeriod);
@@ -158,7 +158,7 @@ function viewMoney() {
   <div class="grid2">
   <div class="panel">
     <div class="hero">
-      ${flask(s.inc ? Math.max(0, s.bal) / s.inc : 0, { size: 'big', color: s.bal >= 0 ? 'var(--accent)' : 'var(--bad)', text: s.inc ? Math.round(Math.max(0, s.bal) / s.inc * 100) + '%' : '—', sub: 'осталось от дохода' })}
+      ${flask(s.inc ? Math.max(0, s.bal) / s.inc : 0, { kind: 'chest', size: 'big', color: s.bal >= 0 ? '#F2C230' : 'var(--bad)', text: s.inc ? Math.round(Math.max(0, s.bal) / s.inc * 100) + '%' : '—', sub: 'осталось от дохода' })}
       <div class="kpis">
         <div class="big ${s.bal >= 0 ? 'pos' : 'neg'}"><span>Итог</span><b>${money(s.bal, true)}</b><em>${s.bal >= 0 ? 'в плюсе' : 'в минусе'}</em></div>
         <div><span>Доход</span><b class="pos">${money(s.inc)}</b></div>
@@ -171,7 +171,7 @@ function viewMoney() {
     ${forecast}
   </div>
   <div class="panel"><h2>Куда уходят деньги</h2><p>Доля каждой категории во всех тратах периода.</p>
-    ${s.cats.length ? `<div class="flasks">${s.cats.slice(0, 8).map(([c, v], i) => flask(v / s.out, { size: 'sm', round: true, color: CAT_COLORS[i % CAT_COLORS.length], label: `${MONEY_CATS[c]?.ico || '•'} ${esc(MONEY_CATS[c]?.n || c)}`, sub: fmt(v) + ' ₽' })).join('')}</div>` : '<p>Пока нет трат за этот период.</p>'}
+    ${s.cats.length ? `<div class="flasks">${s.cats.slice(0, 8).map(([c, v], i) => flask(v / s.out, { kind: 'chest', size: 'sm', label: `${MONEY_CATS[c]?.ico || '•'} ${esc(MONEY_CATS[c]?.n || c)}`, sub: fmt(v) + ' ₽' })).join('')}</div>` : '<p>Пока нет трат за этот период.</p>'}
   </div>
   ${moneyGoalsPanel()}
   <div class="panel"><h2>Советы экономиста</h2><ul class="advice">${moneyAdvice(s, moneyPeriod).map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>

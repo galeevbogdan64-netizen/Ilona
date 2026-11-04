@@ -294,6 +294,7 @@ details summary{cursor:pointer;font-size:13px;font-weight:700;margin-bottom:8px;
 /* анимация экранов */
 #app.enter>*{animation:fadeUp .45s cubic-bezier(.2,.8,.3,1) both}
 #app.enter>*:nth-child(2){animation-delay:.04s}#app.enter>*:nth-child(3){animation-delay:.08s}#app.enter>*:nth-child(4){animation-delay:.12s}#app.enter>*:nth-child(5){animation-delay:.16s}#app.enter>*:nth-child(n+6){animation-delay:.2s}
+@media (prefers-reduced-motion:reduce){#app.enter>*{animation:none}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}}
 .task.done .chk{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
 @keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
@@ -419,7 +420,34 @@ body.locked #app,body.locked nav{visibility:hidden}
 .qr img,.qr canvas{width:100%;height:100%;image-rendering:pixelated}
 .linkbox{display:flex;gap:8px;align-items:center}.linkbox code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--card2);padding:10px 12px;border-radius:12px;font-size:13px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-.fontopt.nofile{opacity:.55}.fontopt small{display:block;font-size:11px;color:var(--muted)}.pbox.big{aspect-ratio:16/10}.pbox.big img,.mdb .pbox img{width:100%;height:100%;object-fit:cover;opacity:1}.ingl{margin:0 0 8px;padding-left:20px;line-height:1.7}.rlab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}.nyaml{margin-top:12px}.nyaml summary{cursor:pointer;color:var(--accent);font-weight:600}.nlist{display:grid;gap:10px;margin:12px 0}.nrow{align-items:flex-start}.nrow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.fontopt.nofile{opacity:.55}.fontopt small{display:block;font-size:11px;color:var(--muted)}.pbox.big{aspect-ratio:16/10}.pbox.big img,.mdb .pbox img{width:100%;height:100%;object-fit:cover;opacity:1}.ingl{margin:0 0 8px;padding-left:20px;line-height:1.7}.pbox.hero{aspect-ratio:16/9}.pbox.hero img,.wcard .pbox img{opacity:1}.pcredit.on{display:block;position:absolute;right:8px;bottom:8px;max-width:80%;font-size:11px;padding:3px 8px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wcard .pbox{aspect-ratio:16/10}.wnum{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px}.wok{position:absolute;right:8px;top:8px;background:var(--ok);color:#000;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-weight:800}.wcard.read{opacity:.6}.wcard .rc-b b{display:block;line-height:1.25}.wgrid{margin-bottom:16px}.sheet p{margin:0 0 10px}.tsess{display:flex;flex-direction:column;min-height:calc(100dvh - 190px);gap:14px}
+.ttop{display:flex;align-items:center;gap:12px}.ttop .bar{flex:1;height:14px;border-radius:9px}.ttop .bar i{border-radius:9px;transition:width .4s}.txp{color:var(--accent);white-space:nowrap}
+.tbody{flex:1;display:flex;flex-direction:column;gap:12px}.tq{font-family:var(--head);font-size:22px;font-weight:700;margin:6px 0 0}
+.tprompt{font-size:22px;font-weight:600;padding:16px;border-radius:18px;background:color-mix(in srgb,var(--card) 80%,transparent);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center;min-height:70px}
+.tprompt.gram{font-size:20px}.gap{display:inline-block;min-width:60px;border-bottom:3px solid var(--accent);color:var(--accent);padding:0 6px}
+.topts{display:grid;gap:10px}.topt{padding:15px 16px;border-radius:16px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--text);font:600 17px var(--body);text-align:left;cursor:pointer}
+.topt.sel{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 14%,var(--card))}.topt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}.topt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--card))}
+.hz{font-size:1.15em}.py{display:block;font-size:13px;color:var(--muted);font-weight:500}
+.tintro{display:grid;justify-items:center;gap:10px;padding:26px 16px;border-radius:22px;background:var(--card);border:1px solid var(--line)}.tintro .tw{font-size:34px;font-weight:800;text-align:center}.tintro .ttr{font-size:19px;color:var(--muted)}
+.tsay{border:0;background:var(--blue);color:#fff;border-radius:14px;width:52px;height:52px;font-size:22px;cursor:pointer;box-shadow:0 4px 0 color-mix(in srgb,var(--blue) 60%,#000)}.tsay.sm{width:34px;height:34px;font-size:15px;border-radius:10px;box-shadow:none;flex:none}.tsay.big{width:96px;height:96px;font-size:42px;border-radius:26px}
+.tinp{font-size:20px;padding:16px}
+.tmatch{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tmatch>div{display:grid;gap:10px}.tm{padding:14px 10px;border-radius:14px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--text);font:600 16px var(--body);cursor:pointer;min-height:58px}
+.tm.sel{border-color:var(--blue)}.tm.bad{border-color:var(--bad);animation:shake .3s}.tm.gone{opacity:.25;border-color:var(--ok)}
+.tbuilt{min-height:62px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;align-items:center}.tbank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.ttile{padding:10px 14px;border-radius:12px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--text);font:600 17px var(--body);cursor:pointer}.ttile.used{visibility:hidden}
+.tfoot{position:sticky;bottom:calc(84px + var(--safe-bot));padding:14px;border-radius:20px;display:grid;gap:10px;background:color-mix(in srgb,var(--card) 92%,transparent);border:1px solid var(--line)}
+.tfoot.good{background:color-mix(in srgb,var(--ok) 22%,var(--card));border-color:var(--ok)}.tfoot.bad{background:color-mix(in srgb,var(--bad) 20%,var(--card));border-color:var(--bad)}
+.tfb{display:grid;gap:4px;font-size:16px}.tfb small{color:var(--muted)}.tgo{width:100%;font-size:17px;padding:15px}.tgo:disabled{opacity:.4}
+.tgr{margin-top:6px}.tgr summary{cursor:pointer;color:var(--muted);font-size:14px}
+.tfinish{text-align:center}.tbig{font-size:64px}
+.tpath{display:grid;gap:10px;margin-bottom:16px}.tunit{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--text);text-align:left;cursor:pointer;font:inherit}
+.tunit b{display:block}.tunit small{color:var(--muted)}.tunit.cur{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.tring{width:54px;height:54px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*360deg),var(--line) 0)}.tring i{width:44px;height:44px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal;font-size:22px}
+.tunit.full .tring{background:var(--ok)}
+.tgh{width:100%;display:flex;justify-content:space-between;gap:10px;background:none;border:0;color:var(--text);font:inherit;text-align:left;cursor:pointer;padding:0}.tgh span{color:var(--ok);white-space:nowrap}
+.tex{display:grid;gap:8px;margin:10px 0}.tex>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tex span{color:var(--muted)}
+.tdict{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}.tdict li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.tdict li span{color:var(--muted);flex:1;text-align:right}.tdict li.dim{opacity:.55}.tdict .lvl{font-style:normal;color:var(--accent);font-size:10px;letter-spacing:1px}
+.rlab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}.nyaml{margin-top:12px}.nyaml summary{cursor:pointer;color:var(--accent);font-weight:600}.nlist{display:grid;gap:10px;margin:12px 0}.nrow{align-items:flex-start}.nrow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -443,7 +471,7 @@ body.locked #app,body.locked nav{visibility:hidden}
 <div class="toast" id="toast"></div>
 <div id="lock" class="lock" hidden>
   <div class="lock-in">
-    <div class="lock-logo"><svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="10" fill="var(--accent)"/><path d="M15 24.5l6 6 12-13" fill="none" stroke="var(--accent-ink)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="lock-logo"><img src="icon.svg" alt="" width="84" height="84" style="border-radius:20px;box-shadow:0 12px 36px rgba(0,0,0,.45)"></div>
     <h2>Ilona</h2><p id="lock-msg">Введи код</p>
     <div class="dots" id="lock-dots"><i></i><i></i><i></i><i></i></div>
     <div class="pad"><button data-pin="1">1</button><button data-pin="2">2</button><button data-pin="3">3</button><button data-pin="4">4</button><button data-pin="5">5</button><button data-pin="6">6</button><button data-pin="7">7</button><button data-pin="8">8</button><button data-pin="9">9</button><span></span><button data-pin="0">0</button><button data-pin="⌫">⌫</button></div>
@@ -458,10 +486,16 @@ body.locked #app,body.locked nav{visibility:hidden}
 <script src="style.js"></script>
 <script src="brain.js"></script>
 <script src="lang.js"></script>
+<script src="lang-units.js"></script>
+<script src="lang-grammar.js"></script>
+<script src="lang-freq-en.js"></script>
+<script src="lang-freq-de.js"></script>
+<script src="tutor.js"></script>
 <script src="ideas.js"></script>
 <script src="work.js"></script>
 <script src="notify.js"></script>
 <script src="mealdb.js"></script>
+<script src="wlessons.js"></script>
 <script>
 'use strict';
 /* =========================================================
@@ -698,7 +732,9 @@ function render() {
     console.error(err);
     app.innerHTML = `<div class="top"><div><h1>Упс</h1></div></div><div class="panel"><h2>Раздел не открылся</h2><p>Скорее всего, обновление приложения догрузилось не полностью. Нажми «Обновить» — данные не пропадут.</p><p class="hint">${esc(err.message)}</p><div class="btnrow"><button class="btn hot" data-act="hardreload">Обновить</button><button class="btn light" data-act="gohome">На главную</button></div></div>`;
   }
-  app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');
+  // анимация появления — только при переходе в другой раздел, а не при каждом обновлении экрана
+  const key = tab + '/' + (typeof foodTab !== 'undefined' ? foodTab : '') + '/' + (typeof brainTab !== 'undefined' ? brainTab : '');
+  if (key !== render.last) { render.last = key; app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); }
   hydratePhotos(app);
   if (tab === 'settings') { drawQR(); preloadFontSamples(); }
   window.scrollTo(0, 0);
@@ -757,7 +793,7 @@ function viewGoals() {
       : `${Math.round(p * total)} / ${total} дней`;
     return `<div class="gcard">
       <div class="row"><span class="tag ${g.type}">${TYPE_META[g.type].tag}</span><h3>${esc(g.title)}</h3></div>
-      <div class="gbody">${flask(p, { color: GOAL_COLOR[g.type], round: g.type !== 'money' })}
+      <div class="gbody">${flask(p, g.type === 'money' ? { kind: 'chest' } : g.langGoal && state.lang ? { kind: 'flag', lang: state.lang.lang } : { color: GOAL_COLOR[g.type] })}
         <div class="ginfo"><div class="stats">${stat}</div><div class="strip">${cells}</div><div class="hint">${human(g.start)} — ${human(g.end)}</div></div></div>
       <div class="acts"><button class="btn small light" data-act="edit" data-g="${g.id}">Изменить</button><button class="btn small danger" data-act="del" data-g="${g.id}">Удалить</button></div>
     </div>`;
@@ -998,7 +1034,7 @@ document.addEventListener('click', e => {
   if (e.target === $('#scrim')) return closeSheet();
   const el = e.target.closest('[data-act]'); if (!el) return;
   const act = el.dataset.act, g = state.goals.find(x => x.id === el.dataset.g);
-  if (sectionClick(act, el) || notifyClick(act, el) || mdbClick(act, el) || workClick(act, el) || partnerClick(act, el) || brainClick(act, el) || langClick(act, el) || styleClick(act, el)) return;
+  if (sectionClick(act, el) || notifyClick(act, el) || mdbClick(act, el) || wClick(act, el) || workClick(act, el) || partnerClick(act, el) || brainClick(act, el) || tutorClick(act, el) || langClick(act, el) || styleClick(act, el)) return;
   switch (act) {
     case 'new': openGoal(); break;
     case 'edit': openGoal(g); break;

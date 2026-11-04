@@ -189,31 +189,70 @@ function lessonArt(m) {
 
 /* ---------- колба с жидкостью ---------- */
 let flaskId = 0;
+/* Индикаторы заполнения: сундук (финансы), флаг (языки), скорпион-логотип (всё остальное) */
+const SCORP = `<polyline points="222,214 170,200 146,170" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="290,214 342,200 366,170" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="218,236 162,240 134,262" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="294,236 350,240 378,262" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="222,258 170,276 150,306" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="290,258 342,276 362,306" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="228,282 186,300 160,326" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><polyline points="284,282 326,300 352,326" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M232 186 Q196 168 186 128" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/><path d="M186 136 C150 126 140 84 160 58 C166 82 178 96 196 100 C204 84 204 66 196 50 C232 70 226 124 186 136 Z" fill="#fff"/><path d="M280 186 Q316 168 326 128" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/><path d="M326 136 C362 126 372 84 352 58 C346 82 334 96 316 100 C308 84 308 66 316 50 C280 70 286 124 326 136 Z" fill="#fff"/><ellipse cx="256" cy="212" rx="44" ry="40" fill="#fff"/><ellipse cx="256" cy="256" rx="48" ry="21" fill="#fff"/><ellipse cx="256" cy="284" rx="44" ry="19" fill="#fff"/><ellipse cx="256" cy="310" rx="38" ry="17" fill="#fff"/><ellipse cx="256" cy="334" rx="30" ry="15" fill="#fff"/><line x1="256.0" y1="350.0" x2="256.4" y2="363.5" stroke="#fff" stroke-width="27.0" stroke-linecap="round"/><line x1="256.4" y1="363.5" x2="258.2" y2="376.0" stroke="#fff" stroke-width="26.4" stroke-linecap="round"/><line x1="258.2" y1="376.0" x2="261.1" y2="387.5" stroke="#fff" stroke-width="25.9" stroke-linecap="round"/><line x1="261.1" y1="387.5" x2="265.1" y2="398.0" stroke="#fff" stroke-width="25.4" stroke-linecap="round"/><line x1="265.1" y1="398.0" x2="270.1" y2="407.6" stroke="#fff" stroke-width="24.8" stroke-linecap="round"/><line x1="270.1" y1="407.6" x2="275.9" y2="416.1" stroke="#fff" stroke-width="24.2" stroke-linecap="round"/><line x1="275.9" y1="416.1" x2="282.5" y2="423.6" stroke="#fff" stroke-width="23.7" stroke-linecap="round"/><line x1="282.5" y1="423.6" x2="289.7" y2="430.2" stroke="#fff" stroke-width="23.1" stroke-linecap="round"/><line x1="289.7" y1="430.2" x2="297.4" y2="435.8" stroke="#fff" stroke-width="22.6" stroke-linecap="round"/><line x1="297.4" y1="435.8" x2="305.5" y2="440.4" stroke="#fff" stroke-width="22.1" stroke-linecap="round"/><line x1="305.5" y1="440.4" x2="313.9" y2="444.1" stroke="#fff" stroke-width="21.5" stroke-linecap="round"/><line x1="313.9" y1="444.1" x2="322.5" y2="446.8" stroke="#fff" stroke-width="20.9" stroke-linecap="round"/><line x1="322.5" y1="446.8" x2="331.1" y2="448.5" stroke="#fff" stroke-width="20.4" stroke-linecap="round"/><line x1="331.1" y1="448.5" x2="339.7" y2="449.2" stroke="#fff" stroke-width="19.9" stroke-linecap="round"/><line x1="339.7" y1="449.2" x2="348.1" y2="449.0" stroke="#fff" stroke-width="19.3" stroke-linecap="round"/><line x1="348.1" y1="449.0" x2="356.3" y2="447.8" stroke="#fff" stroke-width="18.8" stroke-linecap="round"/><line x1="356.3" y1="447.8" x2="364.1" y2="445.6" stroke="#fff" stroke-width="18.2" stroke-linecap="round"/><line x1="364.1" y1="445.6" x2="371.3" y2="442.5" stroke="#fff" stroke-width="17.6" stroke-linecap="round"/><line x1="371.3" y1="442.5" x2="378.0" y2="438.5" stroke="#fff" stroke-width="17.1" stroke-linecap="round"/><line x1="378.0" y1="438.5" x2="383.9" y2="433.5" stroke="#fff" stroke-width="16.5" stroke-linecap="round"/><line x1="383.9" y1="433.5" x2="388.9" y2="427.5" stroke="#fff" stroke-width="16.0" stroke-linecap="round"/><line x1="388.9" y1="427.5" x2="393.1" y2="420.6" stroke="#fff" stroke-width="15.4" stroke-linecap="round"/><line x1="393.1" y1="420.6" x2="396.1" y2="412.8" stroke="#fff" stroke-width="14.9" stroke-linecap="round"/><line x1="396.1" y1="412.8" x2="398.0" y2="404.0" stroke="#fff" stroke-width="14.3" stroke-linecap="round"/><ellipse cx="398.0" cy="390.0" rx="17" ry="22" transform="rotate(-15 398.0 390.0)" fill="#fff"/><path d="M396.0 372.0 C408.0 340.0 432.0 326.0 454.0 334.0 C434.0 342.0 424.0 356.0 420.0 378.0 Z" fill="#fff"/>`;
+const FLAGS = {
+  de: '<rect width="74" height="18" fill="#000"/><rect y="17" width="74" height="18" fill="#DD0000"/><rect y="34" width="74" height="18" fill="#FFCE00"/>',
+  es: '<rect width="74" height="52" fill="#AA151B"/><rect y="13" width="74" height="26" fill="#F1BF00"/>',
+  fr: '<rect width="25" height="52" fill="#0055A4"/><rect x="24" width="26" height="52" fill="#fff"/><rect x="49" width="25" height="52" fill="#EF4135"/>',
+  it: '<rect width="25" height="52" fill="#009246"/><rect x="24" width="26" height="52" fill="#fff"/><rect x="49" width="25" height="52" fill="#CE2B37"/>',
+  tr: '<rect width="74" height="52" fill="#E30A17"/><circle cx="27" cy="26" r="13" fill="#fff"/><circle cx="30.5" cy="26" r="10.4" fill="#E30A17"/><path d="M40 26l9.5-3.1-5.9 8.1v-10l5.9 8.1z" fill="#fff"/>',
+  zh: '<rect width="74" height="52" fill="#DE2910"/><path d="M13 7l2.6 8h8.4l-6.8 5 2.6 8-6.8-5-6.8 5 2.6-8-6.8-5h8.4z" fill="#FFDE00"/>' + [[27, 5], [31, 10], [31, 17], [27, 22]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.9" fill="#FFDE00"/>`).join(''),
+  en: '<rect width="74" height="52" fill="#012169"/><path d="M0 0L74 52M74 0L0 52" stroke="#fff" stroke-width="10"/><path d="M0 0L74 52M74 0L0 52" stroke="#C8102E" stroke-width="3.5"/><path d="M37 0V52M0 26H74" stroke="#fff" stroke-width="15"/><path d="M37 0V52M0 26H74" stroke="#C8102E" stroke-width="8"/>'
+};
 function flask(pct, opt = {}) {
-  const p = Math.max(0, Math.min(1, pct || 0)), id = 'f' + (flaskId++);
-  const color = opt.color || 'var(--accent)';
-  const top = opt.round ? 50 : 26, bottom = 132, y = R(bottom - p * (bottom - top - 6));
-  const shape = opt.round
-    ? 'M42 6V44C22 52 10 70 10 92A40 40 0 0 0 90 92C90 70 78 52 58 44V6Z'
-    : 'M40 6V50L12 116Q8 132 24 132H76Q92 132 88 116L60 50V6Z';
+  const p = Math.max(0, Math.min(1, pct || 0)), id = 'f' + (flaskId++), kind = opt.kind || 'logo';
+  const color = opt.color || 'var(--accent)', anim = !opt.still;
   let wave = 'M-100 0'; for (let x = -100; x < 200; x += 25) wave += ` q6.25 -5 12.5 0 t12.5 0`; wave += ' V220 H-100 Z';
-  const anim = !opt.still;
-  const bubbles = anim && p > 0.08 ? [0, 1, 2].map(i => `<circle cx="${34 + i * 15}" cy="${bottom - 4}" r="${2 + (i % 2)}" fill="#fff" opacity=".5"><animate attributeName="cy" from="${bottom - 4}" to="${y + 4}" dur="${2.4 + i * 0.7}s" begin="${i * 0.6}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".55;.5;0" dur="${2.4 + i * 0.7}s" begin="${i * 0.6}s" repeatCount="indefinite"/></circle>`).join('') : '';
-  return `<div class="flask ${opt.size || ''}">
-    <svg viewBox="0 0 100 140" aria-label="${Math.round(p * 100)}%"><defs><clipPath id="${id}"><path d="${shape}"/></clipPath>
-      <linearGradient id="${id}l" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".25" stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-      <path d="${shape}" fill="var(--text)" fill-opacity=".05"/>
-      <g clip-path="url(#${id})">
-        <g transform="translate(0 ${y})">${anim ? `<animateTransform attributeName="transform" type="translate" from="0 ${bottom + 6}" to="0 ${y}" dur="1.3s" calcMode="spline" keySplines=".2 .8 .3 1" keyTimes="0;1" fill="freeze"/>` : ''}
-          <g><path d="${wave}" fill="${color}" opacity=".45"/>${anim ? '<animateTransform attributeName="transform" type="translate" from="-25 0" to="0 0" dur="2.2s" repeatCount="indefinite"/>' : ''}</g>
-          <g><path d="${wave}" transform="translate(0 3)" fill="${color}"/>${anim ? '<animateTransform attributeName="transform" type="translate" from="0 0" to="-25 0" dur="3s" repeatCount="indefinite"/>' : ''}</g>
-        </g>${bubbles}
+  // уровень жидкости внутри области [top..bottom]
+  const box = { chest: [80, 127], flag: [16, 70], logo: [8, 134] }[kind], [top, bottom] = box;
+  const y = R(bottom - p * (bottom - top));
+  const liquid = fill => `<g transform="translate(0 ${y})">${anim ? `<animateTransform attributeName="transform" type="translate" from="0 ${bottom + 8}" to="0 ${y}" dur="1.3s" calcMode="spline" keySplines=".2 .8 .3 1" keyTimes="0;1" fill="freeze"/>` : ''}
+      <g><path d="${wave}" fill="${fill}" opacity=".5"/>${anim ? '<animateTransform attributeName="transform" type="translate" from="-25 0" to="0 0" dur="2.2s" repeatCount="indefinite"/>' : ''}</g>
+      <g><path d="${wave}" transform="translate(0 3)" fill="${fill}"/>${anim ? '<animateTransform attributeName="transform" type="translate" from="0 0" to="-25 0" dur="3s" repeatCount="indefinite"/>' : ''}</g></g>`;
+  let svg;
+  if (kind === 'chest') {
+    const gold = opt.color || '#FFC93C';
+    // 3/4 вид: передняя стенка, правая боковая, выпуклая крышка; золото поднимается внутри стенок
+    const front = 'M8 76L68 80V128L10 125Z', side = 'M68 80L92 73V117L68 128Z';
+    const lidF = 'M8 76L68 80V58Q40 42 8 52Z', lidS = 'M68 80L92 73V54Q86 36 68 58Z';
+    const coins = p > 0.04 ? [16, 30, 44, 58, 76, 86].map((x, i) => `<ellipse cx="${x}" cy="${y + 1 + (i % 2) * 2.5}" rx="6.5" ry="2.6" fill="#FFE68A" stroke="#C98A12" stroke-width="1"/>`).join('') : '';
+    const plank = (x1, y1, x2, y2) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="#174A7C" stroke-width="1.6" opacity=".7"/>`;
+    svg = `<defs><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4C9BDC"/><stop offset="1" stop-color="#215F9E"/></linearGradient>
+        <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2E74B5"/><stop offset="1" stop-color="#1B4F86"/></linearGradient>
+        <clipPath id="${id}"><path d="${front}"/><path d="${side}"/></clipPath></defs>
+      <ellipse cx="58" cy="132" rx="40" ry="5" fill="#000" opacity=".22"/>
+      <path d="${front}" fill="url(#${id}b)"/><path d="${side}" fill="url(#${id}s)"/>
+      <g clip-path="url(#${id})">${liquid(gold)}${coins}</g>
+      <g opacity=".85">${plank(10, 93, 68, 96)}${plank(10, 110, 68, 112)}${plank(68, 95, 92, 89)}${plank(68, 111, 92, 104)}</g>
+      <path d="${lidF}" fill="url(#${id}b)"/><path d="${lidS}" fill="url(#${id}s)"/>
+      ${plank(9, 64, 68, 68)}${plank(68, 68, 92, 63)}
+      <g fill="none" stroke="#F0A12E" stroke-linejoin="round">
+        <path d="${front}" stroke-width="4"/><path d="${side}" stroke-width="4"/>
+        <path d="M8 52Q40 42 68 58Q86 36 92 54" stroke-width="4"/><path d="M8 52V76M68 58V80M92 54V73" stroke-width="4"/>
+        <path d="M8 76L68 80L92 73" stroke-width="6"/><path d="M38 47V78" stroke-width="0"/>
       </g>
-      ${[0.25, 0.5, 0.75].map(k => { const yy = R(bottom - k * (bottom - top - 6)); return `<line x1="${opt.round ? 14 : 22 - k * 8}" y1="${yy}" x2="${opt.round ? 22 : 30 - k * 8}" y2="${yy}" stroke="var(--text)" stroke-opacity=".35" stroke-width="1.5"/>`; }).join('')}
-      <path d="${shape}" fill="url(#${id}l)"/>
-      <path d="${shape}" fill="none" stroke="var(--text)" stroke-opacity=".75" stroke-width="3" stroke-linejoin="round"/>
-      <rect x="34" y="2" width="32" height="7" rx="3.5" fill="var(--text)" opacity=".85"/>
-    </svg>
+      <g fill="none" stroke="#B9690F" stroke-width="1" opacity=".7"><path d="M8 79L68 83L92 76"/><path d="${front}"/></g>
+      <rect x="31" y="70" width="14" height="17" rx="2" fill="#F5B33F" stroke="#B9690F" stroke-width="1.2"/>
+      <circle cx="38" cy="77" r="2.4" fill="#3A2208"/><path d="M38 78l-1.5 5h3z" fill="#3A2208"/>
+      ${[[11, 79], [65, 82], [71, 81], [89, 75], [12, 121], [65, 125], [71, 124], [89, 114], [11, 55], [89, 56]].map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.6" fill="#FFD27A" stroke="#B9690F" stroke-width=".6"/>`).join('')}`;
+  } else if (kind === 'flag') {
+    const f = FLAGS[opt.lang] || FLAGS.en, shape = 'M18 16Q37 10 55 16T92 16V70Q74 76 55 70T18 70Z';
+    svg = `<defs><clipPath id="${id}"><path d="${shape}"/></clipPath><clipPath id="${id}l">${''}<rect x="0" y="${y - 2}" width="100" height="140"/></clipPath></defs>
+      <rect x="12" y="8" width="5" height="128" rx="2.5" fill="var(--text)" opacity=".7"/><circle cx="14.5" cy="8" r="4" fill="var(--text)" opacity=".8"/>
+      <g clip-path="url(#${id})"><g transform="translate(18 17)" opacity=".13">${f}</g>
+        <g clip-path="url(#${id}l)"><g transform="translate(18 17)">${f}</g></g>
+        <g opacity=".35">${liquid('#ffffff')}</g>
+      </g>
+      <path d="${shape}" fill="none" stroke="var(--text)" stroke-opacity=".75" stroke-width="2.5" stroke-linejoin="round"/>`;
+    svg = svg.replace(`<g opacity=".35">${liquid('#ffffff')}</g>`, `<g opacity=".18">${liquid('#ffffff')}</g>`);
+  } else {
+    svg = `<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="140"><g transform="translate(-3 6) scale(.205)">${SCORP}</g></mask></defs>
+      <g transform="translate(-3 6) scale(.205)" opacity=".13">${SCORP.replace(/#fff/g, 'var(--text)')}</g>
+      <g mask="url(#${id})">${liquid(color)}</g>`;
+  }
+  return `<div class="flask ${opt.size || ''} k-${kind}">
+    <svg viewBox="0 0 100 140" aria-label="${Math.round(p * 100)}%">${svg}</svg>
     <div class="flask-pc">${opt.text ?? Math.round(p * 100) + '%'}</div>
     ${opt.label ? `<div class="flask-l">${opt.label}</div>` : ''}${opt.sub ? `<div class="flask-s">${opt.sub}</div>` : ''}
   </div>`;
