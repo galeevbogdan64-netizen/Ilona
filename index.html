@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141416">
+<meta name="description" content="Личный тренер по целям месяца. Данные только на этом устройстве.">
+<title>Ilona</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ilona">
+<meta name="format-detection" content="telephone=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141416; --card:#1F1F23; --card2:#2A2A30; --text:#F5F5F2; --muted:#9A9AA3; --line:rgba(255,255,255,.09);
+  --accent:#FFD60A; --accent-ink:#141416; --ok:#4ADE80; --bad:#FF6B6B; --bar:#55555E; --blue:#60A5FA; --pink:#F472B6;
+  --head:'Unbounded',system-ui,sans-serif; --body:'Manrope',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --r:20px; --r-s:12px;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+  /* совместимость */
+  --ink:var(--text); --hot:var(--accent); --paper:var(--bg); --paper2:var(--card2);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;transition:background .3s,color .3s}
+body{min-height:100dvh;background-image:radial-gradient(900px 420px at 85% -120px,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%),radial-gradient(600px 300px at -10% 30%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%);background-attachment:fixed}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.wrap{max-width:600px;margin:0 auto;padding:calc(20px + var(--safe-top)) 16px calc(110px + var(--safe-bot))}
+
+/* шапка */
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:6px 0 20px}
+.date{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--accent) 75%,var(--text))}
+h1{font-family:var(--head);font-weight:800;font-size:34px;line-height:1.02;letter-spacing:-.03em;margin-top:6px}
+h2{font-family:var(--head);font-weight:700;font-size:17px;letter-spacing:-.01em}
+.streak{background:var(--accent);color:var(--accent-ink);padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 35%,transparent)}
+.streak b{font-family:var(--head);font-size:17px;margin-right:2px}
+
+/* прогресс дня */
+.meter{position:relative;overflow:hidden;border-radius:var(--r);background:var(--accent);color:var(--accent-ink);padding:18px;margin-bottom:18px;display:flex;align-items:center;gap:16px}
+.meter::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;border:26px solid rgba(0,0,0,.08)}
+.meter .num{font-family:var(--head);font-weight:800;font-size:46px;line-height:1;min-width:96px}
+.meter .num small{font-size:18px;opacity:.6}
+.meter .txt{flex:1;display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:600;position:relative;z-index:1}
+.meter .bar{background:rgba(0,0,0,.14);border:none;flex:none}
+.meter .bar i{background:var(--accent-ink)}
+.bar{height:10px;border-radius:99px;background:var(--card2);position:relative;overflow:hidden;flex:1}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--accent);transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.bar.ok i{background:var(--ok)}
+.bar.thin{height:7px}
+
+/* карточки целей на «Сегодня» */
+.goal,.panel,.gcard,.lesson{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px}
+.goal{overflow:hidden}
+.goal-h{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:99px;white-space:nowrap;background:var(--card2);color:var(--muted)}
+.tag.money{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.tag.count{background:color-mix(in srgb,var(--blue) 22%,transparent);color:var(--blue)}
+.tag.split{background:color-mix(in srgb,var(--pink) 22%,transparent);color:var(--pink)}
+.tag.custom{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok)}
+.goal-h h3{font-family:var(--head);font-weight:700;font-size:14.5px;flex:1;line-height:1.25}
+.goal-h .left{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.tasks{list-style:none;padding:0 6px 6px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:11px 10px;border-radius:14px;transition:background .15s}
+.task:hover{background:color-mix(in srgb,var(--text) 4%,transparent)}
+.chk{flex:none;width:26px;height:26px;border-radius:9px;border:2px solid color-mix(in srgb,var(--text) 35%,transparent);display:grid;place-items:center;margin-top:1px;transition:.2s}
+.chk svg{width:15px;height:15px;opacity:0;transform:scale(.5);transition:.2s}
+.chk svg path{stroke:var(--accent-ink)}
+.task.done .chk{background:var(--accent);border-color:var(--accent)}
+.task.done .chk svg{opacity:1;transform:none}
+.task.done .t-main{text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:2px;color:var(--muted)}
+.t-body{flex:1;min-width:0}
+.t-main{font-weight:650;font-weight:600}
+.t-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.entry{display:flex;gap:8px;margin-top:8px;align-items:center}
+.entry input,.inp{border:1px solid var(--line);background:var(--card2);border-radius:var(--r-s);padding:10px 12px;outline:none;transition:border-color .15s}
+.entry input{width:120px;font-family:var(--mono)}
+.entry input:focus,.inp:focus{border-color:var(--accent)}
+.entry span{font-size:13px;color:var(--muted)}
+.tip{display:flex;gap:10px;padding:12px 16px;background:var(--card2);font-size:14px}
+.tip b{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);flex:none;padding-top:2px}
+
+/* кнопки */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;background:var(--card2);color:var(--text);padding:12px 18px;font-weight:700;border:1px solid var(--line);transition:transform .1s,filter .15s,background .15s;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{transform:scale(.97)}
+.btn.hot{background:var(--accent);color:var(--accent-ink);border-color:transparent;box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 28%,transparent)}
+.btn.light{background:transparent}
+.btn.small{padding:8px 13px;font-size:13.5px;border-radius:11px}
+.btn.wide{width:100%}
+.btn.danger{background:transparent;color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+
+.empty{border:1.5px dashed color-mix(in srgb,var(--text) 22%,transparent);border-radius:var(--r);padding:26px 18px;text-align:center;margin-bottom:16px}
+.empty p{color:var(--muted);margin:8px 0 18px}
+
+/* цели */
+.gcard{padding:16px}
+.gcard .row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.gcard h3{font-family:var(--head);font-size:15.5px;flex:1;line-height:1.2}
+.gbody{display:flex;gap:16px;align-items:center;margin:8px 0 12px}
+.gbody .flask{width:92px;flex:none}
+.ginfo{flex:1;min-width:0}
+.gcard .stats{font-family:var(--mono);font-size:13px;margin-bottom:10px}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(12px,1fr));gap:3px}
+.strip i{aspect-ratio:1;border-radius:3px;background:var(--card2)}
+.strip i.d{background:var(--accent)}.strip i.p{background:color-mix(in srgb,var(--accent) 40%,var(--card2))}.strip i.t{outline:2px solid var(--text);outline-offset:1px}.strip i.f{opacity:.45}
+.gcard .acts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* панели */
+.panel{padding:18px}
+.panel p{font-size:14px;color:var(--muted);margin:6px 0 12px}
+.prompt{width:100%;min-height:200px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card2);padding:12px;font-family:var(--mono);font-size:12.5px;line-height:1.5;resize:vertical}
+.answer{white-space:pre-wrap;border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin-top:14px;font-size:15px}
+.note{font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+.note svg{flex:none;width:16px;height:16px;margin-top:1px}
+.ai-panel{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--card)),var(--card) 60%)}
+.priv{list-style:none;margin-top:10px}
+.priv li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.priv li:last-child{border:none}
+.priv li::before{content:"✕";font-weight:800;color:var(--bad);flex:none}
+.priv li.yes::before{content:"✓";color:var(--ok)}
+label.f{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:14px 0 6px;letter-spacing:.02em}
+.inp{width:100%;font-size:16px}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+textarea.inp{min-height:96px;resize:vertical}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* навигация — плавающий док */
+nav{position:fixed;left:12px;right:12px;bottom:calc(10px + var(--safe-bot));z-index:20;display:flex;justify-content:center;pointer-events:none}
+nav .in{pointer-events:auto;width:100%;max-width:560px;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:6px;border-radius:24px;background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+nav button{padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--muted);border-radius:18px;transition:.2s}
+nav button svg{width:21px;height:21px}
+nav button.on{color:var(--accent-ink);background:var(--accent)}
+
+/* нижний лист */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:40;display:none;align-items:flex-end;justify-content:center}
+.scrim.open{display:flex}
+.sheet{background:var(--card);border:1px solid var(--line);border-bottom:none;border-radius:26px 26px 0 0;width:100%;max-width:600px;max-height:92dvh;overflow:auto;padding:20px 18px calc(24px + var(--safe-bot));animation:up .28s cubic-bezier(.2,.8,.3,1)}
+.sheet::before{content:"";display:block;width:44px;height:5px;border-radius:9px;background:var(--line);margin:-8px auto 14px}
+@media(min-width:700px){.scrim{align-items:center}.sheet{border-radius:26px;border-bottom:1px solid var(--line)}.sheet::before{display:none}}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+.x{width:38px;height:38px;border-radius:12px;background:var(--card2);font-size:20px;line-height:1;flex:none}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.type{border:1px solid var(--line);border-radius:16px;background:var(--card2);padding:14px;text-align:left;transition:.15s}
+.type.sel{background:var(--accent);color:var(--accent-ink)}
+.type b{display:block;font-family:var(--head);font-size:14px;margin-bottom:4px}
+.type span{font-size:12.5px;opacity:.75}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--safe-bot));transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:14px;font-weight:700;font-size:14px;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
+
+/* общие элементы */
+.steps{list-style:none;counter-reset:s;margin-top:6px}
+.steps li{counter-increment:s;display:flex;gap:12px;padding:8px 0;font-size:14.5px}
+.steps li::before{content:counter(s);font-family:var(--head);font-weight:800;width:26px;height:26px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none;font-size:12px}
+.ico{display:inline-block;vertical-align:-3px;width:18px;height:18px}
+.devs,.chips,.quick{display:flex;gap:6px;flex-wrap:wrap}
+.devs{margin:10px 0 4px}
+.devs button,.chip,.quick button{border:1px solid var(--line);background:var(--card2);padding:7px 12px;border-radius:99px;font-size:13.5px;font-weight:600;transition:.15s}
+.devs button.on,.chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.chip.x2{display:inline-flex;gap:6px;align-items:center}
+.chip.x2 i{font-style:normal;opacity:.6;font-weight:800}
+.chip.custom{border-style:dashed}
+.seg{display:flex;gap:4px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:16px;overflow-x:auto}
+.seg button{flex:1;padding:9px 10px;font-weight:700;font-size:13.5px;border-radius:12px;white-space:nowrap;color:var(--muted)}
+.seg button.on{background:var(--text);color:var(--bg)}
+details summary{cursor:pointer;font-size:13px;font-weight:700;margin-bottom:8px;color:var(--muted)}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.bubble{background:var(--card2);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:0 0 12px;font-size:15px;display:flex;flex-direction:column;gap:3px;border-left:3px solid var(--accent)}
+.bubble .sub{font-size:13.5px;color:var(--muted);margin-top:6px}
+.txform{display:flex;gap:8px}.txform .inp{flex:1;min-width:0}
+.quick{margin-top:10px}
+.kpis{display:flex;gap:18px;flex-wrap:wrap}
+.kpis div{display:flex;flex-direction:column;min-width:90px}
+.kpis span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kpis b{font-family:var(--head);font-size:18px}
+.kpis .big b{font-size:28px}.kpis em{font-style:normal;font-size:12px;font-weight:700}
+.mchart{width:100%;height:120px;display:block;border-bottom:1px solid var(--line);margin-top:6px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px;border-radius:3px}
+.legend i.dash{height:0;border-top:2px dashed var(--ok);width:14px;vertical-align:3px;border-radius:0}
+.legend i.dot{border-radius:50%;background:var(--ok)}
+.catn{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;gap:10px}
+.catn b{font-family:var(--mono);font-size:13px;white-space:nowrap}
+.advice{list-style:none;margin-top:6px}
+.advice li{padding:10px 0 10px 26px;border-bottom:1px solid var(--line);font-size:14.5px;position:relative}
+.advice li:last-child{border:none}
+.advice li::before{content:"";position:absolute;left:2px;top:15px;width:12px;height:12px;border-radius:4px;background:var(--accent)}
+.txlist{list-style:none}
+.txlist li{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.txlist li:last-child{border:none}
+.txm{flex:1;min-width:0;display:flex;flex-direction:column}
+.txm b{font-family:var(--mono);font-size:14px}.txm span{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.txm small{font-size:12px;color:var(--muted)}
+.txlist select{border:1px solid var(--line);background:var(--card2);border-radius:9px;font-size:12.5px;padding:5px;max-width:124px}
+.x.small{width:30px;height:30px;font-size:16px;border-radius:9px}
+.fgroup{margin:14px 0}
+.fgroup h4,.sh{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.fgroup h4{margin:0 0 8px}
+
+/* колбы */
+.flask{display:flex;flex-direction:column;align-items:center;text-align:center}
+.flask svg{width:100%;max-width:120px;overflow:visible;filter:drop-shadow(0 10px 18px rgba(0,0,0,.25))}
+.flask-pc{font-family:var(--head);font-weight:800;font-size:20px;margin-top:6px;line-height:1}
+.flask-l{font-size:13px;font-weight:700;margin-top:6px;line-height:1.2}
+.flask-s{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
+.flask.big svg{max-width:150px}.flask.big .flask-pc{font-size:30px}
+.flask.sm svg{max-width:74px}.flask.sm .flask-pc{font-size:16px}
+.flasks{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:18px 10px;margin-top:10px}
+.hero{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:center}
+.hero .kpis{flex-direction:column;gap:12px}
+
+/* еда */
+.rcard{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px;transition:transform .15s}
+.rcard:active{transform:scale(.985)}
+.rcard .dish{display:block;width:100%;height:auto;aspect-ratio:16/10}
+.rc-b{padding:12px 14px 14px}
+.rtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.rtop b{font-family:var(--head);font-size:14.5px;line-height:1.25}
+.rmeta{font-size:12.5px;color:var(--muted);margin:5px 0 4px}
+.ok-t{font-size:13px;font-weight:700;color:var(--ok)}.miss-t{font-size:12.5px;font-weight:600;color:var(--bad)}
+.sheet .dish{width:calc(100% + 36px);margin:-6px -18px 14px;display:block;aspect-ratio:16/10;height:auto}
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.macros div{padding:10px 4px;text-align:center;background:var(--card2);border-radius:14px}
+.macros div:first-child{background:var(--accent);color:var(--accent-ink)}
+.macros b{display:block;font-family:var(--head);font-size:18px}.macros span{font-size:11px;opacity:.7}
+.vits{margin-top:12px}
+.vit{display:grid;grid-template-columns:104px 1fr 44px;gap:10px;align-items:center;font-size:13px;margin:6px 0}
+.vit b{font-family:var(--mono);font-size:12px;text-align:right}
+.ings{list-style:none}.ings li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.ings li.no{color:var(--bad)}.ings b{font-family:var(--mono);font-size:13px}
+.tipbox{background:var(--card2);border-radius:14px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-left:3px solid var(--accent)}
+.tipbox b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.dbar{margin:12px 0}
+.fadd{display:grid;grid-template-columns:1fr 96px;gap:8px;margin-top:12px}.fadd .btn{grid-column:1/-1}
+.fadd .inp{padding:9px 10px;font-size:14px}
+
+/* ум */
+.lesson{overflow:hidden;padding:0}
+.lesson .lart{display:block;width:100%;height:auto;aspect-ratio:400/220}
+.lesson-b{padding:18px}
+.lhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ltitle{font-size:23px;line-height:1.15;margin-bottom:12px}
+.lesson-b>p{margin:0 0 10px;font-size:16px;line-height:1.6;color:color-mix(in srgb,var(--text) 88%,transparent)}
+.qq{font-weight:700;margin-bottom:8px}
+.qopt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px 14px;margin-bottom:7px;font-weight:600;transition:.15s}
+.qopt:not([disabled]):hover{border-color:var(--accent)}
+.qopt.right{background:var(--ok);color:#0b2b17;border-color:transparent}.qopt.wrong{background:color-mix(in srgb,var(--bad) 30%,var(--card2))}.qopt.dim{opacity:.45}
+.qres{font-weight:700;margin-top:6px}
+.arch{list-style:none}.arch button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;gap:8px}
+.arch small{color:var(--muted);white-space:nowrap}
+.linkish{text-align:left;display:block}
+.arrow{font-family:var(--mono);font-weight:700;color:var(--accent);padding-top:2px}
+.panel h2+p{margin-top:6px}
+
+/* оформление */
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:10px}
+.theme{border-radius:16px;padding:12px;text-align:left;border:2px solid transparent;transition:.15s;position:relative;overflow:hidden}
+.theme.on{border-color:var(--accent)}
+.theme .sw{display:flex;gap:5px;margin-bottom:10px}
+.theme .sw i{width:20px;height:20px;border-radius:7px;border:1px solid rgba(128,128,128,.3)}
+.theme b{font-size:13.5px}
+.accents{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.accents button{width:34px;height:34px;border-radius:12px;border:2px solid transparent}
+.accents button.on{border-color:var(--text)}
+.accents label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.accents input[type=color]{width:34px;height:34px;border:none;border-radius:12px;background:none;padding:0;cursor:pointer}
+
+/* десктоп */
+@media(min-width:900px){
+  nav{left:0;right:auto;top:0;bottom:0;width:230px;padding:18px 14px;justify-content:flex-start;align-items:stretch;flex-direction:column}
+  nav::before{content:"Ilona";display:block;font-family:var(--head);font-weight:800;font-size:28px;padding:10px 12px 26px;color:var(--text);pointer-events:auto}
+  nav .in{display:flex;flex-direction:column;max-width:none;gap:4px;border-radius:22px;padding:8px}
+  nav button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:14.5px;border-radius:14px}
+  .wrap{max-width:1080px;margin:0 0 0 230px;padding:40px 44px 60px}
+  h1{font-size:44px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;align-items:start}
+  .grid2>.panel,.grid2>.goal,.grid2>.gcard{margin-bottom:20px}
+  .rlist{gap:18px;margin-bottom:22px}
+  .rlist .rcard{margin-bottom:0}
+  .rlist.g3{grid-template-columns:repeat(3,1fr)}
+  .toast{bottom:28px;left:calc(50% + 115px)}
+}
+@media(min-width:1440px){.wrap{margin-left:calc(230px + (100vw - 230px - 1080px)/2)}}
+/* анимация экранов */
+#app.enter>*{animation:fadeUp .45s cubic-bezier(.2,.8,.3,1) both}
+#app.enter>*:nth-child(2){animation-delay:.04s}#app.enter>*:nth-child(3){animation-delay:.08s}#app.enter>*:nth-child(4){animation-delay:.12s}#app.enter>*:nth-child(5){animation-delay:.16s}#app.enter>*:nth-child(n+6){animation-delay:.2s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}}
+.task.done .chk{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+.meter .num{animation:countIn .6s ease-out}
+@keyframes countIn{from{opacity:0;transform:scale(.8)}}
+.streak{animation:wiggle 3s ease-in-out infinite}
+@keyframes wiggle{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-4deg)}96%{transform:rotate(4deg)}}
+nav button.on svg{animation:bounce .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bounce{0%{transform:translateY(4px) scale(.8)}100%{transform:none}}
+/* фото */
+.pbox{position:relative;overflow:hidden;background:var(--card2)}
+.pbox>svg{display:block;width:100%;height:auto}
+.pbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+.pbox img.on{opacity:1}
+.pcredit{position:absolute;right:8px;bottom:8px;font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:7px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}
+.rcard .pcredit{display:none}
+.rcard .pbox{aspect-ratio:16/10}.rcard .pbox>svg{aspect-ratio:16/10}
+.sheet .pbox{margin:-6px -18px 14px;aspect-ratio:16/10}.sheet .pbox .dish{margin:0;width:100%}
+.lphoto{margin:4px 0 14px;border-radius:16px;overflow:hidden}
+.lphoto .pbox{aspect-ratio:16/9}
+.lphoto:not(:has(img.on)){display:none}
+.lphoto figcaption{font-size:12px;color:var(--muted);padding:6px 2px 0}
+.switch{display:flex;align-items:center;gap:12px;margin-top:14px;font-weight:600;font-size:14px;cursor:pointer}
+.switch input{display:none}.switch span{width:44px;height:26px;border-radius:99px;background:var(--card2);position:relative;transition:.2s;flex:none;border:1px solid var(--line)}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:.2s}
+.switch input:checked+span{background:var(--accent)}.switch input:checked+span::after{left:21px;background:var(--accent-ink)}
+/* ещё */
+.tiles{display:grid;gap:12px}
+.tile{display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto auto;column-gap:14px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;align-items:center}
+.tile-ico{grid-row:1/3;width:52px;height:52px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.tile-ico svg{width:26px;height:26px}.tile b{font-family:var(--head);font-size:16px}.tile span:last-child{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav button.dk{display:none}
+.nl-long{display:none}
+@media(min-width:900px){.nl-long{display:inline}.nl-short{display:none}}
+@media(min-width:900px){nav button.dk{display:flex}nav button.mb{display:none}}
+nav .in{grid-template-columns:repeat(6,1fr)}
+/* работа */
+.bot{background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 14%,var(--card)),var(--card) 65%)}
+.botrow{display:flex;gap:14px;align-items:center}
+.botava{width:54px;height:54px;border-radius:16px;background:var(--card2);color:var(--muted);display:grid;place-items:center;flex:none}
+.bot.on .botava{color:var(--ok)}.botava svg{width:34px;height:34px}
+.ocard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.ocard.done{opacity:.75}.ocard.skip{opacity:.5}
+.otop{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.ofit{margin-left:auto;font-family:var(--head);font-weight:800;color:var(--ok)}
+.ocard h3{font-family:var(--head);font-size:15px;line-height:1.3;margin-bottom:8px}
+.oprice b{font-family:var(--head);font-size:24px;color:var(--accent)}.oprice span{display:block;font-size:12.5px;color:var(--muted)}
+.owhy{font-size:14px;color:var(--muted);margin:8px 0 0}
+.srcchip{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--card2);border-radius:99px;overflow:hidden;opacity:.55;transition:.15s}
+.srcchip.on{opacity:1;background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.srcchip button{padding:7px 4px 7px 12px;font-size:13.5px;font-weight:600}
+.srcchip a{padding:7px 11px 7px 6px;color:inherit;text-decoration:none;font-weight:700;opacity:.7}
+.calc{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:center}.calc b{font-family:var(--head);font-size:18px;color:var(--accent);white-space:nowrap}
+/* партнёр */
+.idea{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.idea-art svg{display:block;width:100%;height:auto;aspect-ratio:400/140}
+.idea.big .idea-art svg{aspect-ratio:400/150}
+.idea-b{padding:14px 16px 16px}
+.idea h3{font-family:var(--head);font-size:16px;line-height:1.25;margin-bottom:10px}
+.idea.big h3{font-size:21px}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.nums div{background:var(--card2);border-radius:12px;padding:8px 10px}
+.nums span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.nums b{font-family:var(--head);font-size:15px}
+.sheet-art{margin:-6px -18px 14px}.sheet-art svg{display:block;width:100%;height:auto;aspect-ratio:400/140}
+.ip{font-size:14.5px;line-height:1.5}
+.buy{display:grid;gap:8px}.buyrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:var(--card2);border-radius:12px;padding:10px 12px}
+.buyrow b{font-size:14px}.buyrow span{grid-column:1;font-size:13px;color:var(--muted)}.buyrow em{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;font-family:var(--mono);font-size:12.5px;color:var(--accent);text-align:right;max-width:130px}
+.fav{margin-left:auto;font-size:20px;color:var(--muted);line-height:1}.fav.on{color:var(--accent)}
+/* фон */
+#bgl{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center;transition:background-image .6s}
+#bgl::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) calc(var(--dim,.55)*100%),transparent)}
+body.hasbg{background:var(--bg);background-image:none}
+body.hasbg .goal,body.hasbg .panel,body.hasbg .gcard,body.hasbg .lesson,body.hasbg .rcard,body.hasbg .ocard,body.hasbg .idea,body.hasbg .tile,body.hasbg .seg{background:color-mix(in srgb,var(--card) 80%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.bgcredit{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + var(--safe-bot));z-index:15;font-size:10.5px;color:#fff;background:rgba(0,0,0,.45);padding:3px 9px;border-radius:8px;text-decoration:none;max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.bgcredit[hidden]{display:none}
+@media(min-width:900px){.bgcredit{left:auto;right:16px;transform:none;bottom:14px}}
+.range{width:100%;accent-color:var(--accent)}
+.fonts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
+.fontopt{border:2px solid var(--line);background:var(--card2);border-radius:14px;padding:12px;text-align:left}
+.fontopt.on{border-color:var(--accent)}
+.fontopt b{display:block;font-size:20px;line-height:1.2}.fontopt span{font-size:12px;color:var(--muted)}
+/* ум */
+.puz{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;background:var(--card2)}
+.puz.ok{border-color:var(--ok)}
+.puz-h{display:flex;gap:8px;align-items:center}.puz-h em{margin-left:auto;font-style:normal;font-size:12.5px;font-weight:700}
+.puz p{margin:6px 0 8px;color:var(--text)!important;font-size:15px}
+.puz-f{display:flex;gap:8px}.puz-f .inp{padding:8px 10px}
+.otd{list-style:none}.otd li{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.otd li:last-child{border:none}.otd b{font-family:var(--head);color:var(--accent)}.otd a{color:var(--accent);text-decoration:none}
+/* языки */
+.langs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.langopt{display:flex;gap:8px;align-items:center;border:2px solid var(--line);background:var(--card2);border-radius:14px;padding:10px 12px;font-weight:700;text-align:left}
+.langopt span{font-size:22px}.langopt.on{border-color:var(--accent)}
+.wcard{background:var(--card2);border-radius:14px;padding:14px;margin-top:10px}
+.wtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.word{font-family:var(--head);font-size:22px}.wtr{font-size:16px;color:var(--accent);font-weight:700;margin-top:6px}
+.mq{padding:8px 0;border-bottom:1px solid var(--line)}.mq:last-child{border:none}.mq b{display:block;margin-bottom:6px;font-family:var(--head)}
+.chip.bad{background:var(--bad);color:#fff}
+/* вход по коду */
+body.locked #app,body.locked nav{visibility:hidden}
+.lock{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;background-image:radial-gradient(600px 400px at 50% -10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 70%)}
+.lock[hidden]{display:none}
+.lock-in{text-align:center;width:100%;max-width:320px}
+.lock-logo svg{width:64px;height:64px;filter:drop-shadow(0 10px 30px color-mix(in srgb,var(--accent) 45%,transparent))}
+.lock h2{font-size:26px;margin:10px 0 4px}
+.lock p{color:var(--muted);min-height:22px;font-size:14.5px}
+.lock p.err{color:var(--bad)}
+.dots{display:flex;justify-content:center;gap:16px;margin:22px 0 28px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);transition:.15s}
+.dots i.on{background:var(--accent);border-color:var(--accent);transform:scale(1.1)}
+.dots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;justify-items:center}
+.pad button{width:72px;height:72px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-family:var(--head);font-size:24px;font-weight:700;transition:transform .08s,background .15s}
+.pad button:active{transform:scale(.92);background:var(--accent);color:var(--accent-ink)}
+.lock.ok .lock-in{animation:unlock .35s ease-in forwards}
+@keyframes unlock{to{opacity:0;transform:scale(1.05)}}
+.qr{background:#fff;border-radius:16px;padding:12px;width:200px;height:200px;margin:10px 0;display:grid;place-items:center}
+.qr img,.qr canvas{width:100%;height:100%;image-rendering:pixelated}
+.linkbox{display:flex;gap:8px;align-items:center}.linkbox code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--card2);padding:10px 12px;border-radius:12px;font-size:13px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.nyaml{margin-top:12px}.nyaml summary{cursor:pointer;color:var(--accent);font-weight:600}.nlist{display:grid;gap:10px;margin:12px 0}.nrow{align-items:flex-start}.nrow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+</style>
+</head>
+<body>
+<div id="bgl" aria-hidden="true"></div>
+<div class="wrap" id="app"></div>
+<a id="bgcredit" class="bgcredit" target="_blank" rel="noopener noreferrer" hidden></a>
+
+<nav><div class="in">
+  <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3.5" y="4.5" width="17" height="16"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4M8 14l2.5 2.5L16 12"/></svg>Сегодня</button>
+  <button data-tab="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Цели</button>
+  <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="6" width="19" height="13"/><path d="M2.5 10h19"/><circle cx="16.5" cy="14.5" r="1.5" fill="currentColor"/></svg>Финансы</button>
+  <button data-tab="food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 3v8M4.5 3v5.5a2.5 2.5 0 005 0V3M7 11v10"/><path d="M17 21V3c-2.5 1.5-3.5 4-3.5 7.5V13H17"/></svg>Готовка</button>
+  <button data-tab="brain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 20h6M10 17h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2V17h5v-1.1c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg><span class="nl-long">Саморазвитие</span><span class="nl-short">Развитие</span></button>
+  <button data-tab="work" class="dk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg>Работа</button>
+  <button data-tab="partner" class="dk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Партнёр</button>
+  <button data-tab="more" class="mb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></svg>Ещё</button>
+  <button data-tab="settings" class="dk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Настройки</button>
+</div></nav>
+
+<div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<div id="lock" class="lock" hidden>
+  <div class="lock-in">
+    <div class="lock-logo"><svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="10" fill="var(--accent)"/><path d="M15 24.5l6 6 12-13" fill="none" stroke="var(--accent-ink)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>Ilona</h2><p id="lock-msg">Введи код</p>
+    <div class="dots" id="lock-dots"><i></i><i></i><i></i><i></i></div>
+    <div class="pad"><button data-pin="1">1</button><button data-pin="2">2</button><button data-pin="3">3</button><button data-pin="4">4</button><button data-pin="5">5</button><button data-pin="6">6</button><button data-pin="7">7</button><button data-pin="8">8</button><button data-pin="9">9</button><span></span><button data-pin="0">0</button><button data-pin="⌫">⌫</button></div>
+  </div>
+</div>
+
+<script src="qr.js"></script>
+<script src="data.js"></script>
+<script src="art.js"></script>
+<script src="sections.js"></script>
+<script src="photos.js"></script>
+<script src="style.js"></script>
+<script src="brain.js"></script>
+<script src="lang.js"></script>
+<script src="ideas.js"></script>
+<script src="work.js"></script>
+<script src="notify.js"></script>
+<script>
+'use strict';
+/* =========================================================
+   ПЛАН — личный тренер по целям месяца
+   Приватность: никаких разрешений (геолокация, камера и т.п.),
+   никакой аналитики. Всё хранится в localStorage этого устройства.
+   В сеть уходит запрос только по кнопке «Спросить ИИ» (если задан ключ).
+   ========================================================= */
+
+const KEY = 'plan-coach.v1';
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CHECK = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.6"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+
+/* ---------- даты (локальное время) ---------- */
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5); // b - a в днях
+const today = () => iso(new Date());
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const human = s => { const d = parse(s); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const plural = (n, a, b, c) => { n = Math.abs(n) % 100; const m = n % 10; if (n > 10 && n < 20) return c; if (m > 1 && m < 5) return b; if (m === 1) return a; return c; };
+const fmt = n => Math.round(n).toLocaleString('ru-RU');
+
+/* ---------- хранилище ---------- */
+let mem = null; // запасной вариант, если localStorage недоступен
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  return mem || { goals: [], settings: { apiKey: '', model: 'claude-sonnet-5-5' } };
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { mem = state; } }
+let state = load();
+state.settings = Object.assign({ apiKey: '', model: 'claude-sonnet-5-5' }, state.settings || {});
+ensureState(); ensureWork(); ensureBrain();
+
+/* ---------- темы оформления ---------- */
+const THEMES = {
+  graphite: { n: 'Графит', bg: '#141416', card: '#1F1F23', card2: '#2A2A30', text: '#F5F5F2', muted: '#9A9AA3', line: 'rgba(255,255,255,.09)', accent: '#FFD60A', ok: '#4ADE80', bad: '#FF6B6B', bar: '#55555E' },
+  light: { n: 'Светлая', bg: '#F3F2EE', card: '#FFFFFF', card2: '#ECEAE4', text: '#18181B', muted: '#6B6B72', line: 'rgba(0,0,0,.08)', accent: '#FFCC00', ok: '#16A34A', bad: '#DC2626', bar: '#C9C7C0' },
+  neon: { n: 'Неон', bg: '#0A0A0B', card: '#151517', card2: '#202024', text: '#F2F2F2', muted: '#8E8E96', line: 'rgba(255,255,255,.08)', accent: '#C6FF3D', ok: '#3DDC97', bad: '#FF5C7A', bar: '#4A4A52' },
+  ocean: { n: 'Океан', bg: '#0D1520', card: '#152131', card2: '#1E2D41', text: '#EAF2FA', muted: '#8AA0B6', line: 'rgba(255,255,255,.08)', accent: '#4CC9F0', ok: '#5EEAD4', bad: '#FB7185', bar: '#3A4D66' },
+  sunset: { n: 'Закат', bg: '#1A1313', card: '#251B1B', card2: '#332525', text: '#FBF1EA', muted: '#B39C92', line: 'rgba(255,255,255,.08)', accent: '#FF8A3D', ok: '#A3E635', bad: '#F43F5E', bar: '#5A4440' },
+  paper: { n: 'Бумага', bg: '#F2EEE6', card: '#FFFDF8', card2: '#E8E2D6', text: '#16130F', muted: '#6E665B', line: 'rgba(22,19,15,.12)', accent: '#FF4F1F', ok: '#2E7D5B', bad: '#B3261E', bar: '#BDB4A5' }
+};
+const ACCENTS = ['#FFD60A', '#FF8A3D', '#FF4F6D', '#C084FC', '#4CC9F0', '#C6FF3D', '#4ADE80', '#FFFFFF'];
+function inkFor(hex) { const h = hex.replace('#', ''); const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.35 ? '#141416' : '#FFFFFF'; }
+function applyTheme() {
+  const th = state.settings.theme || {}, t = THEMES[th.preset] || THEMES.graphite, acc = th.accent || t.accent, root = document.documentElement.style;
+  Object.entries({ bg: t.bg, card: t.card, card2: t.card2, text: t.text, muted: t.muted, line: t.line, accent: acc, ok: t.ok, bad: t.bad, bar: t.bar }).forEach(([k, v]) => root.setProperty('--' + k, v));
+  root.setProperty('--accent-ink', inkFor(acc));
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', t.bg);
+}
+applyTheme(); applyFont(); applyBackground();
+
+/* ---------- вход по коду ----------
+   Код хранится только в виде хеша. Это «замок на экране», а не шифрование:
+   данные и так хранятся только на этом устройстве. */
+const DEFAULT_PIN_HASH = 'fe6d91e51909276de81a50d79f1bb916d20ed35d440d5180e8ac77c34d3d2f77'; // код по умолчанию
+async function sha256(t) {
+  if (crypto?.subtle) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+  let h = 0; for (const c of t) h = (h * 31 + c.charCodeAt(0)) | 0; return 'x' + h; // запасной вариант без https
+}
+const pinHash = () => state.settings.pinHash || DEFAULT_PIN_HASH;
+let pinBuf = '', unlocked = false, hiddenAt = 0;
+const LOCK_KEY = 'plan-lockout';
+function lockNow() {
+  unlocked = false; pinBuf = ''; document.body.classList.add('locked');
+  const l = $('#lock'); l.hidden = false; l.classList.remove('ok'); drawDots(); $('#lock-msg').textContent = 'Введи код'; $('#lock-msg').className = '';
+}
+function drawDots() { document.querySelectorAll('#lock-dots i').forEach((d, i) => d.classList.toggle('on', i < pinBuf.length)); }
+function lockedOutFor() { try { const v = JSON.parse(localStorage.getItem(LOCK_KEY) || '{}'); return Math.max(0, (v.until || 0) - Date.now()); } catch (e) { return 0; } }
+async function pinPress(k) {
+  const wait = lockedOutFor();
+  if (wait) { $('#lock-msg').textContent = `Слишком много попыток. Подожди ${Math.ceil(wait / 1000)} с`; $('#lock-msg').className = 'err'; return; }
+  if (k === '⌫') { pinBuf = pinBuf.slice(0, -1); drawDots(); return; }
+  if (pinBuf.length >= 4) return;
+  pinBuf += k; drawDots();
+  if (pinBuf.length < 4) return;
+  const ok = (await sha256('plan-pin:' + pinBuf)) === pinHash();
+  if (ok) {
+    try { localStorage.removeItem(LOCK_KEY); } catch (e) {}
+    unlocked = true; const l = $('#lock'); l.classList.add('ok');
+    setTimeout(() => { l.hidden = true; document.body.classList.remove('locked'); render(); }, 320);
+  } else {
+    let v = {}; try { v = JSON.parse(localStorage.getItem(LOCK_KEY) || '{}'); } catch (e) {}
+    v.fails = (v.fails || 0) + 1; if (v.fails >= 5) { v.until = Date.now() + 30e3; v.fails = 0; }
+    try { localStorage.setItem(LOCK_KEY, JSON.stringify(v)); } catch (e) {}
+    const d = $('#lock-dots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    $('#lock-msg').textContent = 'Неверный код'; $('#lock-msg').className = 'err';
+    if (navigator.vibrate) try { navigator.vibrate(120); } catch (e) {}
+    setTimeout(() => { pinBuf = ''; drawDots(); }, 350);
+  }
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pin]'); if (b) pinPress(b.dataset.pin); });
+document.addEventListener('keydown', e => { if (!unlocked && !$('#lock').hidden) { if (/^\d$/.test(e.key)) pinPress(e.key); if (e.key === 'Backspace') pinPress('⌫'); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  const mins = state.settings.lockAfter ?? 5;
+  if (unlocked && hiddenAt && Date.now() - hiddenAt >= mins * 60e3) lockNow();
+});
+lockNow();
+
+/* ---------- советы ---------- */
+const TIPS = {
+  money: [
+    'Сначала отложи, потом трать: переводи сумму дня утром, а не вечером «что останется».',
+    'Проверь подписки: отмени хотя бы одну, которой не пользовался последний месяц.',
+    'Правило 24 часов: любую незапланированную покупку дороже 1000 ₽ отложи на сутки.',
+    'Заведи отдельный счёт или копилку под цель — деньги «не видно», их сложнее потратить.',
+    'Посмотри траты за неделю и найди одну категорию, где можно урезать 20%.',
+    'Готовь еду с собой хотя бы 2 дня в неделю — это заметная экономия за месяц.',
+    'Продай одну ненужную вещь на Авито и отправь деньги в цель.',
+    'Сравни цену цели в 3 магазинах и на б/у рынке — иногда цель становится ближе сама.',
+    'Небольшая подработка в выходной ускоряет цель сильнее, чем мелкая экономия.',
+    'Вечером запиши, сколько потратил за день: что измеряется — то управляется.'
+  ],
+  count: [
+    'Учи слова фразами, а не по одному: «make a decision» запоминается лучше, чем «decision».',
+    'Интервальные повторы: повторяй слова через 1, 3 и 7 дней — так они уходят в долгую память.',
+    'Произноси слово вслух и придумывай с ним своё предложение.',
+    'Раздели порцию дня на 2–3 подхода по 10 минут: утром, днём, вечером.',
+    'Карточки: слово с одной стороны, перевод и пример — с другой.',
+    'Используй новые слова сразу: напиши 3 предложения о своём дне.',
+    'Группируй слова по темам — мозгу проще держать связанные слова.',
+    'Перед сном быстро пробеги глазами слова дня — сон помогает закрепить.'
+  ],
+  split: [
+    'Тянись только до ощущения натяжения, а не боли. Боль — сигнал остановиться.',
+    'Всегда начинай с разминки 5–7 минут: холодные мышцы тянутся хуже и легче травмируются.',
+    'Дыши ровно и на выдохе мягко уходи чуть глубже.',
+    'Не пружинь — держи статичную позицию.',
+    'Регулярность важнее силы: 15 минут каждый день лучше часа раз в неделю.',
+    'Тёплый душ перед растяжкой помогает мышцам расслабиться.',
+    'Фотографируй себя в позиции раз в неделю — прогресс видно лучше, чем по ощущениям.'
+  ],
+  custom: [
+    'Делай самое важное дело дня первым, пока есть силы.',
+    'Если не хочется — договорись с собой хотя бы на 5 минут. Обычно потом втягиваешься.',
+    'Свяжи новое действие с привычным: «после чая — сразу делаю задание».',
+    'Не пропускай два дня подряд: один пропуск — случайность, два — начало новой привычки.',
+    'Вечером отметь, что получилось, — это мотивирует сильнее, чем кажется.'
+  ]
+};
+const TYPE_META = {
+  money:  { tag: 'Деньги',   title: 'Накопить',    hint: 'например, на новый ПК' },
+  count:  { tag: 'Учёба',    title: 'Выучить N',   hint: 'например, 500 слов' },
+  split:  { tag: 'Растяжка', title: 'Шпагат',      hint: 'готовая программа' },
+  custom: { tag: 'Своя',     title: 'Своя цель',   hint: 'свои шаги каждый день' }
+};
+
+/* ---------- логика целей ---------- */
+const logOf = (g, d) => (g.log[d] ||= { value: 0, done: [] });
+const sumBefore = (g, d) => Object.entries(g.log).reduce((s, [k, v]) => k < d ? s + (+v.value || 0) : s, 0);
+const sumAll = g => Object.values(g.log).reduce((s, v) => s + (+v.value || 0), 0);
+const totalDays = g => diff(g.start, g.end) + 1;
+const dayIndex = (g, d) => diff(g.start, d); // 0..total-1
+const inRange = (g, d) => d >= g.start && d <= g.end;
+
+function splitPlan(i) {
+  const w = Math.min(3, Math.floor(i / 7));
+  const h = [30, 45, 60, 75][w];
+  if (i % 7 === 6) return [
+    { id: 'warm', main: 'Разминка 5 минут', sub: 'Лёгкие прыжки, махи ногами, вращения в тазу' },
+    { id: 'light', main: 'Лёгкий день: «бабочка» 60 сек и наклон сидя 60 сек', sub: 'Восстановление — тоже часть прогресса' }
+  ];
+  const t = [
+    { id: 'warm', main: 'Разминка 5–7 минут', sub: 'Бег на месте, махи ногами, приседания' },
+    { id: 'lunge', main: `Глубокий выпад — ${h} сек на каждую ногу`, sub: 'Колено задней ноги на полу, таз вниз и вперёд' },
+    { id: 'fold', main: `Наклон к прямой ноге сидя — ${h} сек на каждую`, sub: 'Спина прямая, тянись грудью к колену' },
+    { id: 'butter', main: `«Бабочка» — ${h} сек`, sub: 'Стопы вместе, колени мягко к полу' }
+  ];
+  if (w >= 1) t.push({ id: 'strap', main: `Растяжка лёжа с ремнём — ${h} сек на каждую ногу`, sub: 'Прямая нога вверх, тяни ремнём к себе' });
+  if (w >= 2) t.push({ id: 'blocks', main: `Продольный шпагат с опорой на книги — 2 × ${h} сек на каждую`, sub: 'Руки на опорах, опускайся без боли' });
+  if (w >= 3) t.push({ id: 'wall', main: `Поперечный у стены лёжа — 2 × ${h} сек`, sub: 'Ноги по стене, пусть разводятся под своим весом' });
+  return t;
+}
+
+function tasksFor(g, d) {
+  const i = dayIndex(g, d), total = totalDays(g), left = total - i;
+  if (g.type === 'money' || g.type === 'count') {
+    const rest = Math.max(0, g.target - sumBefore(g, d));
+    const per = Math.ceil(rest / Math.max(1, left));
+    const unit = g.type === 'money' ? '₽' : (g.unit || 'шт.');
+    const main = rest <= 0 ? 'Цель уже достигнута — можно просто закрепить результат'
+      : g.type === 'money' ? `Отложи ${fmt(per)} ₽` : `Выучи ${fmt(per)} ${unit}`;
+    const arr = [{ id: 'main', main, sub: g.langGoal ? `Осталось ${fmt(rest)} ${unit} за ${left} ${plural(left,'день','дня','дней')}. Отмечается само в «Саморазвитие → Языки».` : `Осталось ${fmt(rest)} ${unit} за ${left} ${plural(left,'день','дня','дней')}. Впиши, сколько сделал сегодня:`, entry: !g.langGoal, unit }];
+    if (g.type === 'count' && i > 0) arr.push({ id: 'rev', main: 'Повтори вчерашнее и то, что было 3 и 7 дней назад', sub: 'Интервальные повторы — 10 минут' });
+    if (g.type === 'money') arr.push({ id: 'spend', main: 'Запиши траты за день', sub: 'Хотя бы примерно — в заметки или блокнот' });
+    if (new Date(parse(d)).getDay() === 0) arr.push({ id: 'week', main: 'Итоги недели: что сработало, что мешало?', sub: 'Внизу вкладки «Цели» можно попросить совет у ИИ' });
+    return arr;
+  }
+  if (g.type === 'split') return splitPlan(i);
+  return (g.steps || []).map((s, k) => ({ id: 's' + k, main: s }));
+}
+
+function dayStatus(g, d) { // 0 нет, 1 частично, 2 выполнено
+  const l = g.log[d]; if (!l) return 0;
+  const ts = tasksFor(g, d);
+  const doneCnt = ts.filter(t => l.done.includes(t.id)).length;
+  if (ts.length && doneCnt === ts.length) return 2;
+  return doneCnt > 0 || l.value > 0 ? 1 : 0;
+}
+
+function progress(g) {
+  if (g.type === 'money' || g.type === 'count') return Math.min(1, sumAll(g) / g.target);
+  const t = today(), upto = t > g.end ? g.end : t;
+  let n = 0; for (let d = g.start; d <= g.end; d = addDays(d, 1)) if (dayStatus(g, d) === 2) n++;
+  return n / totalDays(g);
+}
+
+function streak() {
+  const active = state.goals.filter(g => g.start <= today());
+  if (!active.length) return 0;
+  let n = 0, d = today();
+  const fullDay = day => { const gs = state.goals.filter(g => inRange(g, day)); return gs.length && gs.every(g => dayStatus(g, day) === 2); };
+  if (!fullDay(d)) d = addDays(d, -1);
+  while (fullDay(d) && n < 999) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+const tipFor = (g, d) => { const arr = TIPS[g.type]; return arr[(dayIndex(g, d) + g.id.length) % arr.length]; };
+
+/* ---------- отрисовка ---------- */
+let tab = 'today';
+function render() {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab || (b.dataset.tab === 'more' && ['work', 'partner', 'settings', 'more'].includes(tab))));
+  const app = $('#app');
+  app.innerHTML = ({ today: viewToday, goals: viewGoals, money: viewMoney, food: viewFood, brain: viewBrain, work: viewWork, partner: viewPartner, more: viewMore, settings: viewSettings })[tab]();
+  app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');
+  hydratePhotos(app);
+  if (tab === 'settings') { drawQR(); preloadFontSamples(); }
+  window.scrollTo(0, 0);
+}
+
+function todayPrompt() {
+  const d = today(), gs = state.goals.filter(g => inRange(g, d));
+  const L = typeof lessonOfDay === 'function' ? lessonOfDay() : null;
+  return `Ты мой личный ассистент по продуктивности. Сегодня ${human(d)}.
+Мои цели и задания на сегодня:
+${gs.map(g => { const l = g.log[d] || { done: [] }; return `- ${g.title}: ${tasksFor(g, d).map(t => t.main + (l.done.includes(t.id) ? ' ✓' : '')).join('; ')}`; }).join('\n') || '- целей пока нет'}
+${L && L.id !== '_none' ? `Урок дня: «${L.t}».` : ''}
+Новых заказов во фрилансе: ${(state.work?.orders || []).filter(o => o.status === 'new').length}.
+Составь короткий реалистичный план дня по времени (утро/день/вечер), выдели 1 главное дело и дай один совет, как не отвлекаться. Ответ — до 12 строк, по-русски.`;
+}
+function viewToday() {
+  const d = today(), dt = parse(d);
+  const gs = state.goals.filter(g => inRange(g, d));
+  const st = streak();
+  const daily = dailyBlock();
+  let head = `<div class="top"><div><div class="date">${WD[dt.getDay()]} · ${human(d)}</div><h1>План<br>на сегодня</h1></div>${st ? `<div class="streak"><b>${st}</b> ${plural(st,'день','дня','дней')} подряд</div>` : ''}</div>`;
+  let all = daily.items.length, done = daily.items.filter(i => i.done).length;
+  const blocks = gs.map(g => {
+    const ts = tasksFor(g, d), l = g.log[d] || { value: 0, done: [] };
+    all += ts.length; done += ts.filter(t => l.done.includes(t.id)).length;
+    const left = diff(d, g.end);
+    return `<section class="goal">
+      <div class="goal-h"><span class="tag ${g.type}">${TYPE_META[g.type].tag}</span><h3>${esc(g.title)}</h3><span class="left">${left ? `ещё ${left} ${plural(left,'день','дня','дней')}` : 'последний день'}</span></div>
+      <ul class="tasks">${ts.map(t => `<li class="task ${l.done.includes(t.id) ? 'done' : ''}">
+        <button class="chk" aria-label="Отметить" data-act="toggle" data-g="${g.id}" data-t="${t.id}">${CHECK}</button>
+        <div class="t-body"><div class="t-main">${esc(t.main)}</div>${t.sub ? `<div class="t-sub">${esc(t.sub)}</div>` : ''}
+        ${t.entry ? `<div class="entry"><input type="number" inputmode="decimal" min="0" placeholder="0" value="${l.value || ''}" data-act="value" data-g="${g.id}"><span>${esc(t.unit)} сегодня</span></div>` : ''}
+        </div></li>`).join('')}</ul>
+      <div class="tip"><b>Совет</b><span>${esc(tipFor(g, d))}</span></div>
+    </section>`;
+  }).join('');
+  const p = all ? done / all : 0;
+  const meter = `<div class="meter"><div class="num">${done}<small>/${all}</small></div><div class="txt"><div class="bar ${p === 1 ? 'ok' : ''}"><i style="width:${p * 100}%"></i></div><span>${p === 1 ? 'День закрыт. Отличная работа!' : 'дел выполнено сегодня'}</span></div></div>`;
+  const noGoals = !state.goals.length ? `<div class="empty"><h2>Целей пока нет</h2><p>Поставь цель на месяц — каждый день здесь будут появляться конкретные задания.</p><button class="btn hot" data-act="new">+ Новая цель</button></div>`
+    : !gs.length ? `<div class="empty"><h2>По целям на сегодня заданий нет</h2><p>Все цели закончились или ещё не начались.</p><button class="btn hot" data-act="new">+ Новая цель</button></div>` : '';
+  return head + meter + `<div class="grid2">${daily.html}${blocks}</div>` + noGoals + aiPanel('today', 'План дня от ИИ', todayPrompt(), 'Расставит дела по времени и подскажет, с чего начать.');
+}
+
+const GOAL_COLOR = { money: 'var(--accent)', count: 'var(--blue)', split: 'var(--pink)', custom: 'var(--ok)' };
+function viewGoals() {
+  const t = today();
+  const cards = state.goals.map(g => {
+    const p = progress(g), total = totalDays(g);
+    let cells = '';
+    for (let k = 0; k < total; k++) {
+      const d = addDays(g.start, k), s = dayStatus(g, d);
+      cells += `<i class="${s === 2 ? 'd' : s === 1 ? 'p' : ''} ${d === t ? 't' : ''} ${d > t ? 'f' : ''}" title="${human(d)}"></i>`;
+    }
+    const stat = g.type === 'money' ? `${fmt(sumAll(g))} / ${fmt(g.target)} ₽`
+      : g.type === 'count' ? `${fmt(sumAll(g))} / ${fmt(g.target)} ${esc(g.unit || '')}`
+      : `${Math.round(p * total)} / ${total} дней`;
+    return `<div class="gcard">
+      <div class="row"><span class="tag ${g.type}">${TYPE_META[g.type].tag}</span><h3>${esc(g.title)}</h3></div>
+      <div class="gbody">${flask(p, { color: GOAL_COLOR[g.type], round: g.type !== 'money' })}
+        <div class="ginfo"><div class="stats">${stat}</div><div class="strip">${cells}</div><div class="hint">${human(g.start)} — ${human(g.end)}</div></div></div>
+      <div class="acts"><button class="btn small light" data-act="edit" data-g="${g.id}">Изменить</button><button class="btn small danger" data-act="del" data-g="${g.id}">Удалить</button></div>
+    </div>`;
+  }).join('');
+  return `<div class="top"><div><div class="date">${state.goals.length} ${plural(state.goals.length,'цель','цели','целей')}</div><h1>Цели<br>месяца</h1></div><button class="btn hot small" data-act="new">+ Цель</button></div>`
+    + (cards ? `<div class="grid2">${cards}</div>` + aiPanel('goals', 'Совет ИИ-тренера по целям', buildPrompt(), 'Оценка прогресса и план на завтра.') : `<div class="empty"><h2>Пусто</h2><p>Накопить на ПК, выучить 500 слов, сесть на шпагат — начни с одной цели.</p><button class="btn hot" data-act="new">+ Новая цель</button></div>`);
+}
+
+function buildPrompt() {
+  const d = today();
+  const lines = state.goals.map(g => {
+    const i = dayIndex(g, d), total = totalDays(g), left = Math.max(0, diff(d, g.end));
+    let s = `• «${g.title}» (${TYPE_META[g.type].tag.toLowerCase()}), с ${human(g.start)} по ${human(g.end)}, осталось ${left} дн. `;
+    if (g.type === 'money') s += `Цель ${fmt(g.target)} ₽, накоплено ${fmt(sumAll(g))} ₽.`;
+    else if (g.type === 'count') s += `Цель ${fmt(g.target)} ${g.unit || ''}, сделано ${fmt(sumAll(g))}.`;
+    else s += `Полностью выполненных дней: ${Math.round(progress(g) * total)} из ${Math.min(total, Math.max(0, i + 1))} прошедших.`;
+    if (g.type === 'custom' && g.steps?.length) s += ` Ежедневные шаги: ${g.steps.join('; ')}.`;
+    return s;
+  }).join('\n');
+  return `Ты мой личный консультант, экономист и тренер. Сегодня ${human(d)}.
+Мои цели на этот месяц и прогресс:
+${lines || '• Целей пока нет — помоги сформулировать 2–3 цели на месяц.'}
+
+Пожалуйста:
+1) Оцени, успеваю ли я по каждой цели.
+2) Дай конкретный план на завтра — короткие пункты.
+3) Если отстаю — предложи, как скорректировать план без перегруза.
+4) Один мотивирующий совет в конце.
+Отвечай кратко, по-русски.`;
+}
+
+function viewMore() {
+  const newOrders = state.work.orders.filter(o => o.status === 'new').length, d = ideaOfDayObj();
+  const tile = (t, title, sub, ico) => `<button class="tile" data-act="go" data-v="${t}"><span class="tile-ico">${ico}</span><b>${title}</b><span>${sub}</span></button>`;
+  return `<div class="top"><div><div class="date">разделы</div><h1>Ещё</h1></div></div><div class="tiles">
+    ${tile('work', 'Работа', newOrders ? `Новых заказов: ${newOrders}` : 'Заказы с бирж от бота', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg>')}
+    ${tile('partner', 'Бизнес-партнёр', 'Идея дня: ' + esc(d.t), '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>')}
+    ${tile('settings', 'Настройки', 'Оформление, данные, приватность', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg>')}
+  </div>`;
+}
+function appUrl() { return location.href.split('#')[0].replace(/index\.html$/, ''); }
+function sharePanel() {
+  const url = appUrl(), hosted = /^https:/.test(url) && !/claude\.ai|claudeusercontent|localhost|127\.0\.0\.1/.test(url);
+  return `<div class="panel"><h2>Приложение на телефоне девушки</h2>
+    ${hosted ? `<p>Пусть она отсканирует QR-код камерой телефона или откроет ссылку, введёт код и установит приложение на экран.</p>
+    <div class="qr" id="qrbox">загрузка…</div>
+    <div class="linkbox"><code>${esc(url)}</code><button class="btn small" data-act="copylink">Копировать</button></div>`
+    : `<p>Сейчас приложение открыто в предпросмотре, у него нет постоянного адреса. Чтобы открыть его на её телефоне, выложи файлы на GitHub Pages — тогда здесь появится ссылка и QR-код.</p>`}
+    <ol class="steps"><li><span>Открыть ссылку: на iPhone — в <b>Safari</b>, на Android — в <b>Chrome</b></span></li><li><span>Ввести код</span></li><li><span>Установить: iPhone — «Поделиться» → «На экран «Домой»», Android — ⋮ → «Установить приложение»</span></li></ol>
+    <p class="hint">На её телефоне будут свои цели, деньги и заметки — ваши данные не смешиваются и никуда не отправляются. Перенести что-то можно через «Резервную копию».</p></div>`;
+}
+function qrSvg(text) {
+  const q = new QRCodeLib(-1, QRErrorCorrectLevel.M); q.addData(text); q.make();
+  const n = q.getModuleCount(), m = 2; let path = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) path += `M${c + m} ${r + m}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
+}
+function drawQR() {
+  const box = $('#qrbox'); if (!box) return;
+  try { box.innerHTML = qrSvg(appUrl()); } catch (e) { box.textContent = 'Не удалось построить QR — скопируй ссылку'; box.style.color = '#333'; }
+}
+let installEvt = null;
+const UA = navigator.userAgent;
+const isIOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/.test(UA);
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+let devTab = isIOS ? 'ios' : isAndroid ? 'android' : 'pc';
+const SHARE_ICO = '<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2.5v10M6.5 6L10 2.5 13.5 6"/><path d="M6 9H4.5v8.5h11V9H14"/></svg>';
+function installPanel() {
+  if (isStandalone()) return `<div class="panel"><h2>Приложение установлено ✓</h2><p>Ты открыл его с главного экрана / рабочего стола. Данные на каждом устройстве свои — переносить их можно через резервную копию ниже.</p></div>`;
+  const iosSafari = isIOS && !/CriOS|FxiOS|EdgiOS|YaBrowser|OPiOS/.test(UA);
+  const steps = {
+    ios: iosSafari || !isIOS
+      ? `<ol class="steps"><li><span>Открой эту страницу в <b>Safari</b></span></li><li><span>Нажми «Поделиться» ${SHARE_ICO} внизу экрана</span></li><li><span>Пролистай и выбери <b>«На экран «Домой»»</b></span></li><li><span>Нажми «Добавить» — иконка «Ilona» появится на главном экране</span></li></ol>`
+      : `<ol class="steps"><li><span>На iPhone установка работает только через <b>Safari</b>: скопируй адрес и открой его там</span></li><li><span>Нажми «Поделиться» ${SHARE_ICO} → <b>«На экран «Домой»»</b></span></li></ol>`,
+    android: `<ol class="steps"><li><span>Открой страницу в <b>Chrome</b></span></li><li><span>Нажми ⋮ в правом верхнем углу</span></li><li><span>Выбери <b>«Установить приложение»</b> или «Добавить на главный экран»</span></li></ol>`,
+    pc: `<ol class="steps"><li><span>Открой страницу в <b>Chrome</b>, <b>Edge</b> или Яндекс Браузере</span></li><li><span>Нажми значок установки ⊕ справа в адресной строке — или кнопку ниже</span></li><li><span>«Ilona» появится в меню «Пуск» и на рабочем столе, откроется отдельным окном</span></li></ol>`
+  }[devTab];
+  return `<div class="panel"><h2>Установить</h2><p>Иконка на экране, отдельное окно, работа без интернета.</p>
+    <div class="devs">${[['ios','iPhone'],['android','Android'],['pc','Компьютер']].map(([k,n]) => `<button class="${devTab===k?'on':''}" data-act="dev" data-v="${k}">${n}</button>`).join('')}</div>
+    ${steps}
+    ${installEvt ? '<button class="btn hot" data-act="install" style="margin-top:8px">Установить сейчас</button>' : ''}
+  </div>`;
+}
+function viewSettings() {
+  const th = state.settings.theme || {}, cur = THEMES[th.preset] ? th.preset : 'graphite', curAcc = th.accent || THEMES[cur].accent;
+  return `<div class="top"><div><div class="date">оформление · приватность · копия</div><h1>Настройки</h1></div></div>
+  <div class="panel"><h2>Оформление</h2><p>Тема и акцентный цвет — меняются сразу.</p>
+    <div class="themes">${Object.entries(THEMES).map(([k, t]) => `<button class="theme ${cur === k ? 'on' : ''}" data-act="theme" data-v="${k}" style="background:${t.card};color:${t.text}"><div class="sw"><i style="background:${t.bg}"></i><i style="background:${t.card2}"></i><i style="background:${t.accent}"></i><i style="background:${t.text}"></i></div><b>${t.n}</b></button>`).join('')}</div>
+    <label class="f">Акцентный цвет</label>
+    <div class="accents">${ACCENTS.map(c => `<button class="${curAcc.toLowerCase() === c.toLowerCase() ? 'on' : ''}" style="background:${c}" data-act="accent" data-v="${c}" aria-label="${c}"></button>`).join('')}
+      <label>свой <input type="color" value="${curAcc}" data-act="accentpick"></label>
+      ${th.accent ? '<button class="btn small light" data-act="accent" data-v="" style="width:auto;height:auto">как в теме</button>' : ''}</div>
+  </div>
+  ${stylePanels()}
+  <div class="panel"><h2>Вход по коду</h2><p>Приложение открывается только после ввода 4-значного кода. Один код на тебя и твою девушку.</p>
+    <form id="pinform"><div class="two"><div><label class="f">Текущий код</label><input class="inp" id="pin-old" type="password" inputmode="numeric" maxlength="4" pattern="\\d{4}" autocomplete="off" required></div>
+    <div><label class="f">Новый код</label><input class="inp" id="pin-new" type="password" inputmode="numeric" maxlength="4" pattern="\\d{4}" autocomplete="off" required></div></div>
+    <div class="btnrow"><button class="btn small" type="submit">Сменить код</button><button class="btn small light" type="button" data-act="locknow">Заблокировать сейчас</button></div></form>
+    <label class="f">Блокировать, если приложение свернуто дольше</label>
+    <div class="chips">${[[0, 'сразу'], [1, '1 мин'], [5, '5 мин'], [15, '15 мин'], [60, '1 час']].map(([v, n]) => `<button class="chip ${(state.settings.lockAfter ?? 5) === v ? 'on' : ''}" data-act="lockafter" data-v="${v}">${n}</button>`).join('')}</div>
+    <p class="hint" style="margin-top:12px">Код защищает от тех, кто возьмёт твой телефон в руки. Сами данные никуда не отправляются и хранятся только на этом устройстве.</p>
+  </div>
+  ${sharePanel()}
+  ${notifyPanel()}
+  <div class="panel"><h2>Что приложение НЕ делает</h2>
+    <ul class="priv">
+      <li>Не запрашивает и не видит местоположение</li>
+      <li>Не имеет доступа к камере, микрофону, контактам и файлам</li>
+      <li>Нет аналитики, рекламы, счётчиков и трекеров</li>
+      <li>Не отправляет данные на сервер</li>
+      <li class="yes">Цели, финансы, питание и уроки хранятся только на этом устройстве</li>
+      <li class="yes">Работает без интернета</li>
+      <li class="yes">Фото подгружаются из Википедии — в запросе только название блюда или статьи</li>
+    </ul>
+    <label class="switch"><input type="checkbox" data-act="photos" ${state.settings.photos !== false ? 'checked' : ''}><span></span>Загружать фото из Wikimedia Commons</label>
+    <p style="margin-top:12px">Проверить: в браузере нажми на значок слева от адреса → «Разрешения сайта» (на iPhone: Настройки → Safari → Местоположение) — запросов от приложения там не будет.</p>
+  </div>
+  ${installPanel()}
+  <div class="panel"><h2>Резервная копия</h2>
+    <p>Данные живут в браузере этого устройства. Если очистить данные браузера — они пропадут, поэтому иногда сохраняй копию. Копией же можно перенести цели с ПК на iPhone и обратно.</p>
+    <div class="btnrow"><button class="btn" data-act="export">Скачать копию</button><button class="btn light" data-act="copyjson">Скопировать как текст</button></div>
+    <label class="f">Восстановить из копии</label>
+    <div class="btnrow" style="margin-top:0"><label class="btn light small" style="cursor:pointer">Выбрать файл<input type="file" accept=".json,application/json" data-act="importfile" hidden></label><button class="btn light small" data-act="importtext">Вставить текст</button></div>
+  </div>
+  <div class="panel"><h2>ИИ прямо из приложения</h2>
+    <p>Необязательно. Если указать свой API-ключ Anthropic, кнопка «Спросить ИИ» будет отвечать прямо здесь. Ключ хранится только на этом устройстве.</p>
+    <label class="f" for="apikey">API-ключ</label>
+    <input class="inp" id="apikey" type="password" autocomplete="off" placeholder="sk-ant-…" value="${esc(state.settings.apiKey)}">
+    <div class="btnrow"><button class="btn small" data-act="savekey">Сохранить</button>${state.settings.apiKey ? '<button class="btn small danger" data-act="delkey">Удалить ключ</button>' : ''}</div>
+  </div>
+  <div class="panel"><h2>Сбросить всё</h2><p>Удалит цели, финансы, дневник питания и прогресс уроков с этого устройства.</p><button class="btn danger" data-act="reset">Удалить все данные</button></div>`;
+}
+
+/* ---------- лист создания/редактирования цели ---------- */
+let draft = null;
+function openGoal(g) {
+  const t = today();
+  draft = g ? JSON.parse(JSON.stringify(g)) : { id: '', type: 'money', title: '', target: '', unit: 'слов', start: t, end: addDays(t, 29), steps: [], log: {} };
+  drawSheet();
+  $('#scrim').classList.add('open');
+}
+function drawSheet() {
+  const g = draft, isNew = !g.id;
+  const placeholder = { money: 'Накопить на новый ПК', count: 'Выучить 500 английских слов', split: 'Сесть на шпагат', custom: 'Например: читать каждый день' }[g.type];
+  $('#sheet').innerHTML = `<div class="sheet-h"><h2>${isNew ? 'Новая цель' : 'Изменить цель'}</h2><button class="x" data-act="close" aria-label="Закрыть">×</button></div>
+  ${isNew ? `<div class="types">${Object.entries(TYPE_META).map(([k, m]) => `<button class="type ${g.type === k ? 'sel' : ''}" data-act="type" data-v="${k}"><b>${m.title}</b><span>${m.hint}</span></button>`).join('')}</div>` : ''}
+  <form id="gform">
+    <label class="f" for="f-title">Название</label>
+    <input class="inp" id="f-title" required maxlength="80" placeholder="${placeholder}" value="${esc(g.title)}">
+    ${g.type === 'money' ? `<label class="f" for="f-target">Сколько накопить, ₽</label><input class="inp" id="f-target" type="number" inputmode="numeric" min="1" required placeholder="80000" value="${g.target}">` : ''}
+    ${g.type === 'count' ? `<div class="two"><div><label class="f" for="f-target">Сколько</label><input class="inp" id="f-target" type="number" inputmode="numeric" min="1" required placeholder="500" value="${g.target}"></div><div><label class="f" for="f-unit">Чего</label><input class="inp" id="f-unit" maxlength="20" placeholder="слов" value="${esc(g.unit)}"></div></div>` : ''}
+    ${g.type === 'custom' ? `<label class="f" for="f-steps">Что делать каждый день — по строке на шаг</label><textarea class="inp" id="f-steps" required placeholder="Прочитать 20 страниц\nСделать 30 приседаний\nЛечь спать до 23:30">${esc((g.steps || []).join('\n'))}</textarea>` : ''}
+    ${g.type === 'split' ? `<p class="hint" style="margin-top:10px">Программа на 4 недели: время удержания растёт с 30 до 75 секунд, каждый 7-й день — лёгкий. Тянись без боли.</p>` : ''}
+    <div class="two"><div><label class="f" for="f-start">Начало</label><input class="inp" id="f-start" type="date" required value="${g.start}"></div><div><label class="f" for="f-end">Конец</label><input class="inp" id="f-end" type="date" required value="${g.end}"></div></div>
+    <div class="btnrow" style="margin-top:20px"><button class="btn hot wide" type="submit">${isNew ? 'Создать цель' : 'Сохранить'}</button></div>
+  </form>`;
+  $('#gform').addEventListener('submit', submitGoal);
+}
+function readForm() {
+  const g = draft;
+  g.title = $('#f-title').value.trim();
+  if ($('#f-target')) g.target = +$('#f-target').value;
+  if ($('#f-unit')) g.unit = $('#f-unit').value.trim() || 'шт.';
+  if ($('#f-steps')) g.steps = $('#f-steps').value.split('\n').map(s => s.trim()).filter(Boolean);
+  g.start = $('#f-start').value; g.end = $('#f-end').value;
+}
+function submitGoal(e) {
+  e.preventDefault(); readForm();
+  const g = draft;
+  if (!g.title) return toast('Впиши название');
+  if (g.end < g.start) return toast('Конец раньше начала');
+  if ((g.type === 'money' || g.type === 'count') && !(g.target > 0)) return toast('Укажи число больше нуля');
+  if (g.type === 'custom' && !g.steps.length) return toast('Добавь хотя бы один шаг');
+  if (!g.id) { g.id = 'g' + Date.now().toString(36); state.goals.push(g); }
+  else state.goals[state.goals.findIndex(x => x.id === g.id)] = g;
+  save(); closeSheet(); tab = 'today'; render(); toast('Цель сохранена');
+}
+function closeSheet() { $('#scrim').classList.remove('open'); draft = null; }
+
+function confirmSheet(text, okLabel, onOk) {
+  $('#sheet').innerHTML = `<div class="sheet-h"><h2>Точно?</h2><button class="x" data-act="close">×</button></div><p style="margin:8px 0 18px">${esc(text)}</p><div class="btnrow"><button class="btn danger" id="okbtn">${esc(okLabel)}</button><button class="btn light" data-act="close">Отмена</button></div>`;
+  $('#okbtn').onclick = () => { onOk(); closeSheet(); };
+  $('#scrim').classList.add('open');
+}
+function textSheet(title, value, onApply, onAnswer) {
+  const ask = !onApply && !!state.settings.apiKey;
+  $('#sheet').innerHTML = `<div class="sheet-h"><h2>${esc(title)}</h2><button class="x" data-act="close">×</button></div><textarea class="prompt" id="tbox" style="min-height:240px">${esc(value || '')}</textarea><div class="btnrow">${onApply ? '<button class="btn hot" id="tapply">Восстановить</button>' : `${ask ? '<button class="btn hot" id="task">Спросить ИИ</button>' : ''}<button class="btn ${ask ? 'light' : 'hot'}" id="tcopy">Скопировать</button><a class="btn light" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Открыть Claude ↗</a>`}<button class="btn light" data-act="close">Закрыть</button></div><div id="answer-sheet"></div>`;
+  if (onApply) $('#tapply').onclick = () => onApply($('#tbox').value);
+  else {
+    $('#tcopy').onclick = () => copy($('#tbox').value);
+    if (ask) $('#task').onclick = async () => { const txt = await callAI($('#tbox').value, $('#answer-sheet')); if (txt && onAnswer) onAnswer(txt); };
+  }
+  $('#scrim').classList.add('open');
+}
+
+/* ---------- утилиты ---------- */
+let tt;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2200); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('Скопировано'); }
+  catch (e) { textSheet('Скопируй вручную', text); }
+}
+function importData(raw) {
+  try {
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.goals)) throw 0;
+    state = d; state.settings = Object.assign({ apiKey: '', model: 'claude-sonnet-5-5' }, d.settings || {}); ensureState(); applyTheme();
+    save(); closeSheet(); tab = 'today'; render(); toast('Данные восстановлены');
+  } catch (e) { toast('Не похоже на копию из этого приложения'); }
+}
+const exportText = () => JSON.stringify({ ...state, settings: { ...state.settings, apiKey: '' }, exportedAt: new Date().toISOString() }, null, 2);
+
+async function callAI(text, box) {
+  box.innerHTML = '<div class="answer">Думаю…</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': state.settings.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: state.settings.model, max_tokens: 4000, messages: [{ role: 'user', content: text }] })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j?.error?.message || ('Ошибка ' + r.status));
+    const out = j.content.map(c => c.text || '').join('\n');
+    box.innerHTML = `<div class="answer">${esc(out)}</div>`;
+    return out;
+  } catch (e) {
+    box.innerHTML = `<div class="answer">Не получилось: ${esc(e.message)}${navigator.onLine ? '' : ' (нет интернета)'}. Можно скопировать запрос и вставить в чат вручную.</div>`;
+    return null;
+  }
+}
+const askAI = async src => { const out = await callAI($('#prompt-' + src).value, $('#answer-' + src)); if (out) aiAnswers[src] = out; };
+
+/* ---------- события ---------- */
+document.addEventListener('click', e => {
+  const nb = e.target.closest('nav button');
+  if (nb) { tab = nb.dataset.tab; brainView = null; if (tab === 'partner') { state.partner.seenDay[today()] = 1; save(); } render(); return; }
+  if (e.target === $('#scrim')) return closeSheet();
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act, g = state.goals.find(x => x.id === el.dataset.g);
+  if (sectionClick(act, el) || notifyClick(act, el) || workClick(act, el) || partnerClick(act, el) || brainClick(act, el) || langClick(act, el) || styleClick(act, el)) return;
+  switch (act) {
+    case 'new': openGoal(); break;
+    case 'edit': openGoal(g); break;
+    case 'close': closeSheet(); break;
+    case 'type': readFormSafe(); draft.type = el.dataset.v; if (draft.type !== 'count') draft.unit = draft.unit || 'слов'; drawSheet(); break;
+    case 'toggle': {
+      const l = logOf(g, today()), id = el.dataset.t, k = l.done.indexOf(id);
+      k >= 0 ? l.done.splice(k, 1) : l.done.push(id);
+      save(); render();
+      const ts = tasksFor(g, today());
+      if (k < 0 && ts.every(t => l.done.includes(t.id))) toast(`«${g.title}» — день закрыт 💪`);
+      break;
+    }
+    case 'del': confirmSheet(`Удалить цель «${g.title}» вместе со всеми отметками?`, 'Удалить', () => { state.goals = state.goals.filter(x => x !== g); save(); render(); }); break;
+    case 'copy': copy($('#prompt-' + el.dataset.src).value); break;
+    case 'ask': askAI(el.dataset.src); break;
+    case 'savekey': state.settings.apiKey = $('#apikey').value.trim(); save(); render(); toast('Ключ сохранён на устройстве'); break;
+    case 'delkey': state.settings.apiKey = ''; save(); render(); toast('Ключ удалён'); break;
+    case 'export': {
+      try {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([exportText()], { type: 'application/json' }));
+        a.download = `ilona-backup-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
+        toast(isIOS ? 'Копия сохранена в «Файлы»' : 'Копия сохранена в «Загрузки»');
+      } catch (er) { textSheet('Копия данных', exportText()); }
+      break;
+    }
+    case 'copyjson': textSheet('Копия данных', exportText()); break;
+    case 'importtext': textSheet('Вставь текст копии', '', importData); break;
+    case 'dev': devTab = el.dataset.v; render(); break;
+    case 'locknow': lockNow(); break;
+    case 'lockafter': state.settings.lockAfter = +el.dataset.v; save(); render(); break;
+    case 'copylink': copy(appUrl()); break;
+    case 'theme': state.settings.theme = { ...(state.settings.theme || {}), preset: el.dataset.v, accent: '' }; state.settings.bgAutoColors = false; save(); applyTheme(); render(); break;
+    case 'accent': state.settings.theme = { ...(state.settings.theme || {}), accent: el.dataset.v }; save(); applyTheme(); render(); break;
+    case 'install': if (installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; render(); }); } break;
+    case 'reset': confirmSheet('Все цели и отметки будут удалены с этого телефона.', 'Удалить всё', () => { state = { goals: [], settings: { apiKey: '', model: 'claude-sonnet-5-5' } }; ensureState(); save(); tab = 'today'; render(); }); break;
+  }
+});
+function readFormSafe() { try { if ($('#gform')) readForm(); } catch (e) {} }
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.act === 'value') {
+    const g = state.goals.find(x => x.id === el.dataset.g), l = logOf(g, today());
+    l.value = Math.max(0, +el.value || 0);
+    if (l.value > 0 && !l.done.includes('main')) l.done.push('main');
+    save(); render(); toast('Записано');
+  }
+  if (el.dataset.act === 'importfile' && el.files[0]) el.files[0].text().then(importData);
+  if (el.dataset.act === 'photos') { state.settings.photos = el.checked; save(); render(); }
+  if (el.dataset.act === 'accentpick') { state.settings.theme = { ...(state.settings.theme || {}), accent: el.value }; save(); applyTheme(); render(); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'pinform') return;
+  e.preventDefault();
+  const o = $('#pin-old').value, n = $('#pin-new').value;
+  if (!/^\d{4}$/.test(n)) return toast('Новый код — 4 цифры');
+  if ((await sha256('plan-pin:' + o)) !== pinHash()) return toast('Текущий код неверный');
+  state.settings.pinHash = await sha256('plan-pin:' + n); save(); toast('Код изменён'); render();
+});
+
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (tab === 'settings') render(); });
+// новый день — обновить экран, когда приложение снова открыто
+let lastDay = today();
+document.addEventListener('visibilitychange', () => { if (!document.hidden && today() !== lastDay) { lastDay = today(); applyBackground(); render(); } });
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+try { navigator.storage?.persist?.(); } catch (e) {}
+window.addEventListener('appinstalled', () => { installEvt = null; render(); });
+render();
+</script>
+</body>
+</html>
